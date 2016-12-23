@@ -538,7 +538,7 @@ if ( ! class_exists( 'Wcap_salseforce_CRM' ) ) {
                     <?php settings_fields     ( 'wcap_salseforce_crm_setting' ); ?>
                     <?php do_settings_sections( 'wcap_salseforce_crm_section' ); ?>
                     <?php settings_errors(); ?>
-                    <?php submit_button('Save Salesforce changes'); ?>
+                    <?php submit_button('Save Salesforce Changes'); ?>
                 </form>
                 <?php
             }

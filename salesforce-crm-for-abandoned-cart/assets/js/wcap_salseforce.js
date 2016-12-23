@@ -1,7 +1,7 @@
 jQuery(function( $ ) {
 
 	$ ( '.button-primary' ).on( 'click', function( e ) {
-		if ( $(this).val() == 'Save Salseforce changes' ) {
+		if ( $(this).val() == 'Save Salesforce Changes' ) {
 			
 			var wcap_sf_user_name = document.getElementById('wcap_salseforce_user_name').value;
 			var wcap_sf_passwrod  = document.getElementById('wcap_salseforce_password').value;
