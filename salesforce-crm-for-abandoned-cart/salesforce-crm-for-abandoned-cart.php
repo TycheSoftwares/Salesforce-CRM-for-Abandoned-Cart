@@ -168,36 +168,36 @@ if ( ! class_exists( 'Wcap_salseforce_CRM' ) ) {
             // First, we register a section. This is necessary since all future options must belong to a
             add_settings_section(
                 'wcap_salseforce_crm_general_settings_section',         // ID used to identify this section and with which to register options
-                __( 'Salseforce CRM Settings', 'woocommerce-ac' ),                  // Title to be displayed on the administration page
+                __( 'Salesforce CRM Settings', 'woocommerce-ac' ),                  // Title to be displayed on the administration page
                 array($this, 'wcap_salseforce_crm_general_settings_section_callback' ), // Callback used to render the description of the section
                 'wcap_salseforce_crm_section'     // Page on which to add this section of options
             );
              
             add_settings_field(
                 'wcap_enable_salseforce_crm',
-                __( 'Export abandoned cart data to Salseforce CRM', 'woocommerce-ac' ),
+                __( 'Export abandoned cart data to Salesforce CRM', 'woocommerce-ac' ),
                 array( $this, 'wcap_enable_salseforce_crm_callback' ),
                 'wcap_salseforce_crm_section',
                 'wcap_salseforce_crm_general_settings_section',
-                array( __( 'Enable to export the abandoned carts data to the Salseforce CRM.', 'woocommerce-ac' ) )
+                array( __( 'Enable to export the abandoned carts data to the Salesforce CRM.', 'woocommerce-ac' ) )
             );
 
             add_settings_field(
                 'wcap_add_automatically_to_salseforce_crm',
-                __( 'Automatically add abandoned cart data to salseforce CRM', 'woocommerce-ac' ),
+                __( 'Automatically add abandoned cart data to salesforce CRM', 'woocommerce-ac' ),
                 array( $this, 'wcap_add_automatically_to_salseforce_crm_callback' ),
                 'wcap_salseforce_crm_section',
                 'wcap_salseforce_crm_general_settings_section',
-                array( __( 'When any abandoned cart is displayed to the Abandoned Orders tab, it will be automatically exported to the salseforce CRM.', 'woocommerce-ac' ) )
+                array( __( 'When any abandoned cart is displayed to the Abandoned Orders tab, it will be automatically exported to the salesforce CRM.', 'woocommerce-ac' ) )
             );
 
             add_settings_field(
                 '',
-                __( 'Automatically add abandoned cart data to salseforce CRM after set time.', 'woocommerce-ac' ),
+                __( 'Automatically add abandoned cart data to salesforce CRM after set time.', 'woocommerce-ac' ),
                 array( $this, 'wcap_add_automatically_add_after_time_callback' ),
                 'wcap_salseforce_crm_section',
                 'wcap_salseforce_crm_general_settings_section',
-                array( __( 'When any abandoned cart is displayed to the Abandoned Orders tab, it will be automatically exported to the salseforce CRM after set time.', 'woocommerce-ac' ) )
+                array( __( 'When any abandoned cart is displayed to the Abandoned Orders tab, it will be automatically exported to the salesforce CRM after set time.', 'woocommerce-ac' ) )
             );
 
             add_settings_field(
@@ -224,7 +224,7 @@ if ( ! class_exists( 'Wcap_salseforce_CRM' ) ) {
                 array( $this, 'wcap_salseforce_security_token_callback' ),
                 'wcap_salseforce_crm_section',
                 'wcap_salseforce_crm_general_settings_section',
-                array( __( 'Please provide your Salesforce Security Token. Please login to your salesforce accout then click on the Settings > My Personal Information > Reset My Security Token. Once you have click on the Reset Security Token, ou will recive an email with the security token.', 'woocommerce-ac' ) )
+                array( __( 'Please provide your Salesforce Security Token. Please, login to your salesforce account then click on the Settings > My Personal Information > Reset My Security Token. Once you have clicked on the Reset Security Token, you will receive an email with the security token.', 'woocommerce-ac' ) )
             );
 
             add_settings_field(
@@ -532,13 +532,13 @@ if ( ! class_exists( 'Wcap_salseforce_CRM' ) ) {
              */
             if ( 'wcap_crm' == $wcap_action ){
             	?>
-            	<p><?php _e( 'Change settings for exporting the abandoned cart data to the Salseforce CRM.', 'woocommerce-ac' ); ?></p>
+            	<p><?php _e( 'Change settings for exporting the abandoned cart data to the Salesforce CRM.', 'woocommerce-ac' ); ?></p>
 
                 <form method="post" action="options.php">
                     <?php settings_fields     ( 'wcap_salseforce_crm_setting' ); ?>
                     <?php do_settings_sections( 'wcap_salseforce_crm_section' ); ?>
                     <?php settings_errors(); ?>
-                    <?php submit_button('Save Salseforce changes'); ?>
+                    <?php submit_button('Save Salesforce changes'); ?>
                 </form>
                 <?php
             }
