@@ -1,0 +1,9 @@
+/* Hide message of data sucessfully added to agile CRM
+-------------------------------------------------------------- */
+#wcap_salesforce_message{
+	display: none;
+}
+#wcap_salesforce_security_token_label_error, #wcap_salesforce_password_label_error, #wcap_salesforce_user_name_label_error{
+	display:none; 
+	color:red;
+}
