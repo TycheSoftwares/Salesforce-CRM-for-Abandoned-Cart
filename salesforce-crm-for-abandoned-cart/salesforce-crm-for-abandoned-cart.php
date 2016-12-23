@@ -415,7 +415,7 @@ if ( ! class_exists( 'Wcap_Salesforce_CRM' ) ) {
             );
             
             // Here, we'll take the first argument of the array and add it to a label next to the checkbox
-            $html = '<label for="wcap_salesforce_user_name_label"> '  . $args[0] . '</label> <br>  <span id ="wcap_salesforce_user_name_label_error" > Please enter your Salesforce username token. </span>';
+            $html = '<label for="wcap_salesforce_user_name_label"> '  . $args[0] . '</label> <br>  <span id ="wcap_salesforce_user_name_label_error" > Please enter your Salesforce username. </span>';
             echo $html;
         }
 
@@ -435,7 +435,7 @@ if ( ! class_exists( 'Wcap_Salesforce_CRM' ) ) {
             );
             
             // Here, we'll take the first argument of the array and add it to a label next to the checkbox
-            $html = '<label for="wcap_salesforce_password_label"> '  . $args[0] . '</label> <br>  <span id ="wcap_salesforce_password_label_error" > Please enter your Salesforce password token. </span>';
+            $html = '<label for="wcap_salesforce_password_label"> '  . $args[0] . '</label> <br>  <span id ="wcap_salesforce_password_label_error" > Please enter your Salesforce password. </span>';
             echo $html;
         }
 
