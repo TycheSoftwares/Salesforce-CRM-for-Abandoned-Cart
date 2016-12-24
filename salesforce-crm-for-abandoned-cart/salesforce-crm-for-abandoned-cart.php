@@ -109,6 +109,9 @@ if ( ! class_exists( 'Wcap_Salesforce_CRM' ) ) {
                     ) $wcap_collate AUTO_INCREMENT=1 ";           
             require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
             $wpdb->query( $sql );
+            if ( !get_option( 'wcap_salesforce_user_type' ) ) {
+                add_option( 'wcap_salesforce_user_type', 'lead' );
+            }
         }
 
 		function wcap_salesforce_enqueue_scripts_js( $hook ) {
