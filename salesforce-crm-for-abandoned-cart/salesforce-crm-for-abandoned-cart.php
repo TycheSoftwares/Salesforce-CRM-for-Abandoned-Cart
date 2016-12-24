@@ -736,9 +736,12 @@ if ( ! class_exists( 'Wcap_Salesforce_CRM' ) ) {
 		}
 
 		function wcap_add_export_all_data_to_salesforce_crm (){
+		   $wcap_salesforce_crm_check = get_option ( 'wcap_enable_salesforce_crm' );
+		   if ( 'on' == $wcap_salesforce_crm_check ) { 
 			?>
 			<a href="javascript:void(0);"  id = "add_all_carts_salesforce" class="button-secondary"><?php _e( 'Export to Salesforce CRM', 'woocommerce-ac' ); ?></a>
 			<?php
+		   }
 		}
 
 		function wcap_add_individual_record_to_salesforce_crm ( $actions, $abandoned_row_info ){
