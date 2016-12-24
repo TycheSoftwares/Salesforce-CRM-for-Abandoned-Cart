@@ -94,16 +94,13 @@ if ( ! class_exists( 'Wcap_Salesforce_CRM' ) ) {
             add_action ( 'update_option_wcap_sf_add_automatically_add_after_time_day_or_hour', array( &$this,'wcap_salesforce_reset_cron_time_duration' ),11 );
 		}
 
-		function wcap_salesforce_crm_create_table (){
-
+		function wcap_salesforce_crm_create_table() {
 			global $wpdb;
-
 			$wcap_collate = '';
             if ( $wpdb->has_cap( 'collation' ) ) {
                 $wcap_collate = $wpdb->get_charset_collate();
             }
             $table_name = $wpdb->prefix . "wcap_salesforce_abandoned_cart";
-
             $sql = "CREATE TABLE IF NOT EXISTS $table_name (
                     `id` int(11) NOT NULL AUTO_INCREMENT,
                     `abandoned_cart_id` int(11) COLLATE utf8_unicode_ci NOT NULL,
@@ -112,14 +109,6 @@ if ( ! class_exists( 'Wcap_Salesforce_CRM' ) ) {
                     ) $wcap_collate AUTO_INCREMENT=1 ";           
             require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
             $wpdb->query( $sql );
-
-            if ( !get_option ( 'wcap_enable_salesforce_crm' ) ){
-                add_option ( 'wcap_enable_salesforce_crm', 'on' );
-            }
-
-            if ( !get_option ( 'wcap_salesforce_user_type' ) ){
-                add_option ( 'wcap_salesforce_user_type', 'lead' );
-            }
         }
 
 		function wcap_salesforce_enqueue_scripts_js( $hook ) {
