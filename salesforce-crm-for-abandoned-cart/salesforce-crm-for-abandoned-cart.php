@@ -63,6 +63,7 @@ function wcap_salesforce_crm_uninstall (){
     delete_option( 'wcap_salesforce_password' );
     delete_option( 'wcap_salesforce_security_token' );
     delete_option( 'wcap_salesforce_user_type' );
+    delete_option( 'wcap_salesforce_lead_company' );
 
     wp_clear_scheduled_hook( 'wcap_salesforce_add_abandoned_data_schedule' );
 }
