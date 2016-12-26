@@ -227,7 +227,7 @@ if ( ! class_exists( 'Wcap_Salesforce_CRM' ) ) {
 
             add_settings_field(
                 'wcap_salesforce_user_type',
-                __( 'Create abandoned carts as', 'woocommerce-ac' ),
+                __( 'Export abandoned cart data as', 'woocommerce-ac' ),
                 array( $this, 'wcap_salesforce_user_type_callback' ),
                 'wcap_salesforce_crm_section',
                 'wcap_salesforce_crm_general_settings_section',
