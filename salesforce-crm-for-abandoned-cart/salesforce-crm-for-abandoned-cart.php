@@ -564,7 +564,7 @@ if ( ! class_exists( 'Wcap_Salesforce_CRM' ) ) {
                 if ( !empty( $abandoned_cart_results ) ) {
                     $wcap_user_id = $abandoned_cart_results[0]->user_id;
                     if ( $abandoned_cart_results[0]->user_type == "GUEST" && $abandoned_cart_results[0]->user_id != '0' ) {
-                        $query_guest         = "SELECT billing_first_name, billing_last_name, email_id FROM `" . $wpdb->prefix . "ac_guest_abandoned_cart_history` WHERE id = %d";
+                        $query_guest         = "SELECT billing_first_name, billing_last_name, email_id, phone FROM `" . $wpdb->prefix . "ac_guest_abandoned_cart_history` WHERE id = %d";
                         $results_guest       = $wpdb->get_results( $wpdb->prepare( $query_guest, $wcap_user_id ) );                        
                         if ( count ($results_guest) > 0 ) {
                             $wcap_contact_email   = $results_guest[0]->email_id;
