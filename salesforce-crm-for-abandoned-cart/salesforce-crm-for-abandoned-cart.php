@@ -18,7 +18,7 @@ add_filter( 'cron_schedules', 'wcap_salesforce_add_data_schedule' );
 
 function wcap_salesforce_add_data_schedule( $schedules ) {
 
-	$hour_seconds     = 3600; // 60 * 60
+    $hour_seconds     = 3600; // 60 * 60
     $day_seconds      = 86400; // 24 * 60 * 60
     
     $duration         = get_option( 'wcap_sf_add_automatically_add_after_email_frequency' );
@@ -46,11 +46,11 @@ if ( ! wp_next_scheduled( 'wcap_salesforce_add_abandoned_data_schedule' ) ) {
 register_uninstall_hook( __FILE__, 'wcap_salesforce_crm_uninstall' );
 
 function wcap_salesforce_crm_uninstall (){
-	global $wpdb;
-	
-	$wcap_salesforce_table_name = $wpdb->prefix . "wcap_salesforce_abandoned_cart";
- 	$sql_wcap_salesforce_table_name = "DROP TABLE " . $wcap_salesforce_table_name ;
- 	require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
+    global $wpdb;
+    
+    $wcap_salesforce_table_name = $wpdb->prefix . "wcap_salesforce_abandoned_cart";
+    $sql_wcap_salesforce_table_name = "DROP TABLE " . $wcap_salesforce_table_name ;
+    require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
     $wpdb->get_results( $sql_wcap_salesforce_table_name );
 
     delete_option( 'wcap_enable_salesforce_crm' );
@@ -70,34 +70,36 @@ function wcap_salesforce_crm_uninstall (){
 
 if ( ! class_exists( 'Wcap_Salesforce_CRM' ) ) {
 
-	class Wcap_Salesforce_CRM {
+    class Wcap_Salesforce_CRM {
 
-		public function __construct( ) {
-			register_activation_hook( __FILE__,                         array( &$this, 'wcap_salesforce_crm_create_table' ) );
+        public function __construct( ) {
+            register_activation_hook( __FILE__,                         array( &$this, 'wcap_salesforce_crm_create_table' ) );
             if ( ! has_action ('wcap_add_tabs' ) ){
-                add_action ( 'wcap_add_tabs',     				        array( &$this, 'wcap_salesforce_crm_add_tab' ) );
+                add_action ( 'wcap_add_tabs',                           array( &$this, 'wcap_salesforce_crm_add_tab' ) );
             }
-			add_action ( 'admin_init',          				        array( &$this, 'wcap_salesforce_crm_initialize_settings_options' ), 11 );
-			add_action ( 'wcap_display_message', 				        array( &$this, 'wcap_salesforce_crm_display_message' ),11 );
-			add_action ( 'wcap_crm_data', 				                array( &$this, 'wcap_salesforce_crm_display_data' ), 15 );
-			add_action ( 'wcap_add_buttons_on_abandoned_orders',        array( &$this, 'wcap_add_export_all_data_to_salesforce_crm' ) );
-			add_filter ( 'wcap_abandoned_orders_single_column' ,        array( &$this, 'wcap_add_individual_record_to_salesforce_crm' ), 11 , 2 );
-			add_filter ( 'wcap_abandoned_order_add_bulk_action',        array( &$this, 'wcap_add_bulk_record_to_salesforce_crm' ), 11 , 1 );
-			add_action ( 'wp_ajax_wcap_add_to_salesforce_crm', 	        array( &$this, 'wcap_add_to_salesforce_crm_callback' ));
-			add_action ( 'admin_enqueue_scripts',                       array( &$this, 'wcap_salesforce_enqueue_scripts_js' ) );
-			add_action ( 'admin_enqueue_scripts',                       array( &$this, 'wcap_salesforce_enqueue_scripts_css' ) );
-			add_action ( 'wcap_salesforce_add_abandoned_data_schedule', array( 'Wcap_Salesforce_CRM_Add_Cron_Data', 'wcap_add_salesforce_abandoned_cart_data' ),11 );
-			/*
+            // Add settings link on plugins page
+            add_filter( 'plugin_action_links_' . plugin_basename( __FILE__ ), array( &$this, 'wcap_salesforce_plugin_action_links' ) );
+            add_action ( 'admin_init',                                        array( &$this, 'wcap_salesforce_crm_initialize_settings_options' ), 11 );
+            add_action ( 'wcap_display_message',                              array( &$this, 'wcap_salesforce_crm_display_message' ),11 );
+            add_action ( 'wcap_crm_data',                                     array( &$this, 'wcap_salesforce_crm_display_data' ), 15 );
+            add_action ( 'wcap_add_buttons_on_abandoned_orders',              array( &$this, 'wcap_add_export_all_data_to_salesforce_crm' ) );
+            add_filter ( 'wcap_abandoned_orders_single_column' ,              array( &$this, 'wcap_add_individual_record_to_salesforce_crm' ), 11 , 2 );
+            add_filter ( 'wcap_abandoned_order_add_bulk_action',              array( &$this, 'wcap_add_bulk_record_to_salesforce_crm' ), 11 , 1 );
+            add_action ( 'wp_ajax_wcap_add_to_salesforce_crm',                array( &$this, 'wcap_add_to_salesforce_crm_callback' ));
+            add_action ( 'admin_enqueue_scripts',                             array( &$this, 'wcap_salesforce_enqueue_scripts_js' ) );
+            add_action ( 'admin_enqueue_scripts',                             array( &$this, 'wcap_salesforce_enqueue_scripts_css' ) );
+            add_action ( 'wcap_salesforce_add_abandoned_data_schedule',       array( 'Wcap_Salesforce_CRM_Add_Cron_Data', 'wcap_add_salesforce_abandoned_cart_data' ),11 );
+            /*
              * When cron job time changed this function will be called.
              * It is used to reset the cron time again.
              */
             add_action ( 'update_option_wcap_sf_add_automatically_add_after_email_frequency',  array( &$this,'wcap_salesforce_reset_cron_time_duration' ),11 );
             add_action ( 'update_option_wcap_sf_add_automatically_add_after_time_day_or_hour', array( &$this,'wcap_salesforce_reset_cron_time_duration' ),11 );
-		}
+        }
 
-		function wcap_salesforce_crm_create_table() {
-			global $wpdb;
-			$wcap_collate = '';
+        function wcap_salesforce_crm_create_table() {
+            global $wpdb;
+            $wcap_collate = '';
             if ( $wpdb->has_cap( 'collation' ) ) {
                 $wcap_collate = $wpdb->get_charset_collate();
             }
@@ -115,14 +117,28 @@ if ( ! class_exists( 'Wcap_Salesforce_CRM' ) ) {
             }
         }
 
-		function wcap_salesforce_enqueue_scripts_js( $hook ) {
+        /**
+         * Show action links on the plugin screen.
+         *
+         * @param   mixed $links Plugin Action links
+         * @return  array
+         */
+        
+        public static function wcap_salesforce_plugin_action_links( $links ) {
+            $action_links = array(
+                'settings' => '<a href="' . admin_url( 'admin.php?page=woocommerce_ac_page&action=wcap_crm' ) . '" title="' . esc_attr( __( 'View Salesforce Settings', 'woocommerce-ac' ) ) . '">' . __( 'Settings', 'woocommerce-ac' ) . '</a>',
+            );
+            return array_merge( $action_links, $links );
+        }
+
+        function wcap_salesforce_enqueue_scripts_js( $hook ) {
             if ( $hook != 'woocommerce_page_woocommerce_ac_page' ) {
                 return;
             } else {
                 wp_register_script( 'wcap-salesforce', plugins_url()  . '/salesforce-crm-for-abandoned-cart/assets/js/wcap_salesforce.js', array( 'jquery' ) );
                 wp_enqueue_script( 'wcap-salesforce' );
                 wp_localize_script( 'wcap-salesforce', 'wcap_salesforce_params', array(
-	                                'ajax_url' => admin_url( 'admin-ajax.php' )
+                                    'ajax_url' => admin_url( 'admin-ajax.php' )
                 ) );
             }
         }
@@ -133,7 +149,7 @@ if ( ! class_exists( 'Wcap_Salesforce_CRM' ) ) {
                 return;
             } else {
                 wp_enqueue_style( 'wcap-salesforce',  plugins_url() . '/salesforce-crm-for-abandoned-cart/assets/css/wcap_salesforce_style.css'     );
-			}
+            }
         }
 
         function wcap_salesforce_reset_cron_time_duration (){
@@ -147,16 +163,16 @@ if ( ! class_exists( 'Wcap_Salesforce_CRM' ) ) {
             }
 
             $wcap_salesforce_crm_active = "";
-        	if (  'wcap_crm' == $wcap_action ) {
+            if (  'wcap_crm' == $wcap_action ) {
                 $wcap_salesforce_crm_active = "nav-tab-active";
             }
             ?>
             <a href="admin.php?page=woocommerce_ac_page&action=wcap_crm" class="nav-tab <?php if( isset( $wcap_salesforce_crm_active ) ) echo $wcap_salesforce_crm_active; ?>"> <?php _e( 'Addon Settings', 'woocommerce-ac' );?> </a>
-			<?php
+            <?php
             
         }
 
-		function wcap_salesforce_crm_initialize_settings_options () {
+        function wcap_salesforce_crm_initialize_settings_options () {
 
             // First, we register a section. This is necessary since all future options must belong to a
             add_settings_section(
@@ -275,9 +291,9 @@ if ( ! class_exists( 'Wcap_Salesforce_CRM' ) ) {
                 'wcap_salesforce_crm_setting',
                 'wcap_salesforce_lead_company'
             );
-		}
+        }
 
-		/***************************************************************
+        /***************************************************************
          * WP Settings API callback for section
         **************************************************************/
         function wcap_salesforce_crm_general_settings_section_callback() {
@@ -332,9 +348,9 @@ if ( ! class_exists( 'Wcap_Salesforce_CRM' ) ) {
             ?>
             <select name="wcap_sf_add_automatically_add_after_email_frequency" id="wcap_sf_add_automatically_add_after_email_frequency">
             <?php
-        	$frequency_edit = '';
-        	$frequency_edit = get_option( 'wcap_sf_add_automatically_add_after_email_frequency' );
-        	for ( $i=1;$i<60;$i++ ) {
+            $frequency_edit = '';
+            $frequency_edit = get_option( 'wcap_sf_add_automatically_add_after_email_frequency' );
+            for ( $i=1;$i<60;$i++ ) {
                 printf( "<option %s value='%s'>%s</option>\n",
                     selected( $i, $frequency_edit, false ),
                     esc_attr( $i ),
@@ -368,12 +384,12 @@ if ( ! class_exists( 'Wcap_Salesforce_CRM' ) ) {
 
         function wcap_salesforce_crm_display_message (){
 
-        	$wcap_action           = "";
+            $wcap_action           = "";
             if ( isset( $_GET['action'] ) ){
                 $wcap_action = $_GET['action'];
             }
             /*
-				It will display the message when abandoned cart data successfuly added to salesforce crm.
+                It will display the message when abandoned cart data successfuly added to salesforce crm.
             */
             ?>
             <div id="wcap_salesforce_message" class="updated fade settings-error notice is-dismissible">
@@ -503,16 +519,16 @@ if ( ! class_exists( 'Wcap_Salesforce_CRM' ) ) {
             echo $html;
         }
 
-		function wcap_salesforce_crm_display_data () {
-			?>
-			<div id="wcap_manual_email_data_loading" >
-        		<img  id="wcap_manual_email_data_loading_image" src="<?php echo plugins_url(); ?>/woocommerce-abandon-cart-pro/assets/images/loading.gif" alt="Loading...">
-	        </div>
-	        <?php
-			/*
-				When we use the bulk action it will allot the action and mode.
-			*/
-			$wcap_action = "";
+        function wcap_salesforce_crm_display_data () {
+            ?>
+            <div id="wcap_manual_email_data_loading" >
+                <img  id="wcap_manual_email_data_loading_image" src="<?php echo plugins_url(); ?>/woocommerce-abandon-cart-pro/assets/images/loading.gif" alt="Loading...">
+            </div>
+            <?php
+            /*
+                When we use the bulk action it will allot the action and mode.
+            */
+            $wcap_action = "";
             /*
             When we click on the hover link it will take the action.
             */
@@ -520,12 +536,12 @@ if ( ! class_exists( 'Wcap_Salesforce_CRM' ) ) {
             if ( '' == $wcap_action && isset( $_GET['action'] )) { 
                 $wcap_action = $_GET['action'];
             }
-			/*
-			 *	It will add the settings in the New tab.
+            /*
+             *  It will add the settings in the New tab.
              */
             if ( 'wcap_crm' == $wcap_action ){
-            	?>
-            	<p><?php _e( 'Change settings for exporting the abandoned cart data to the salesforce CRM.', 'woocommerce-ac' ); ?></p>
+                ?>
+                <p><?php _e( 'Change settings for exporting the abandoned cart data to the salesforce CRM.', 'woocommerce-ac' ); ?></p>
 
                 <form method="post" action="options.php">
                     <?php settings_fields     ( 'wcap_salesforce_crm_setting' ); ?>
@@ -535,48 +551,48 @@ if ( ! class_exists( 'Wcap_Salesforce_CRM' ) ) {
                 </form>
                 <?php
             }
-		}
+        }
 
-		function wcap_add_to_salesforce_crm_callback (){
+        function wcap_add_to_salesforce_crm_callback (){
 
-			global $wpdb, $woocommerce;
-			$ids = array();
-			
-			if ( $_POST [ 'wcap_all' ] == 'yes' ) {
+            global $wpdb, $woocommerce;
+            $ids = array();
+            
+            if ( $_POST [ 'wcap_all' ] == 'yes' ) {
 
-				$blank_cart_info         = '{"cart":[]}';
-	    		$blank_cart_info_guest   = '[]';
-				$wcap_get_all_abandoned_carts = "SELECT id FROM `".$wpdb->prefix."ac_abandoned_cart_history` WHERE user_id > 0 AND recovered_cart = 0 AND abandoned_cart_info NOT LIKE '$blank_cart_info_guest' AND abandoned_cart_info NOT LIKE '%$blank_cart_info%'";
-				
-				$abandoned_cart_results  = $wpdb->get_results( $wcap_get_all_abandoned_carts );
+                $blank_cart_info         = '{"cart":[]}';
+                $blank_cart_info_guest   = '[]';
+                $wcap_get_all_abandoned_carts = "SELECT id FROM `".$wpdb->prefix."ac_abandoned_cart_history` WHERE user_id > 0 AND recovered_cart = 0 AND abandoned_cart_info NOT LIKE '$blank_cart_info_guest' AND abandoned_cart_info NOT LIKE '%$blank_cart_info%'";
+                
+                $abandoned_cart_results  = $wpdb->get_results( $wcap_get_all_abandoned_carts );
 
-        		foreach ( $abandoned_cart_results as $abandoned_cart_results_key => $abandoned_cart_results_value ) {
-        			$ids [] = $abandoned_cart_results_value->id;
-        		}
-			} else {
+                foreach ( $abandoned_cart_results as $abandoned_cart_results_key => $abandoned_cart_results_value ) {
+                    $ids [] = $abandoned_cart_results_value->id;
+                }
+            } else {
                 $ids = $_POST ['wcap_abandoned_cart_ids'];
-			}
-			
-			$abandoned_order_count 	    = count ( $ids );
-			
+            }
+            
+            $abandoned_order_count      = count ( $ids );
+            
             foreach ( $ids as $id ) {
 
-				$get_abandoned_cart     = "SELECT * FROM `".$wpdb->prefix."ac_abandoned_cart_history` WHERE id = $id";
-        		$abandoned_cart_results = $wpdb->get_results( $get_abandoned_cart );
-        		$wcap_user_id			= 0;
-        		$wcap_contact_email	    = '';
-        		$wcap_user_last_name    = '';
-        		$wcap_user_first_name   = '';
-        		$wcap_user_phone        = '';
-        		$wcap_user_address      = '';
-        		$wcap_user_city         = '';
-        		$wcap_user_state        = '';
-        		$wcap_user_country      = '';                                
+                $get_abandoned_cart     = "SELECT * FROM `".$wpdb->prefix."ac_abandoned_cart_history` WHERE id = $id";
+                $abandoned_cart_results = $wpdb->get_results( $get_abandoned_cart );
+                $wcap_user_id           = 0;
+                $wcap_contact_email     = '';
+                $wcap_user_last_name    = '';
+                $wcap_user_first_name   = '';
+                $wcap_user_phone        = '';
+                $wcap_user_address      = '';
+                $wcap_user_city         = '';
+                $wcap_user_state        = '';
+                $wcap_user_country      = '';                                
 
-        		if ( !empty( $abandoned_cart_results ) ) {
+                if ( !empty( $abandoned_cart_results ) ) {
                     $wcap_user_id = $abandoned_cart_results[0]->user_id;
 
-        			if ( $abandoned_cart_results[0]->user_type == "GUEST" && $abandoned_cart_results[0]->user_id != '0' ) {
+                    if ( $abandoned_cart_results[0]->user_type == "GUEST" && $abandoned_cart_results[0]->user_id != '0' ) {
                         $query_guest         = "SELECT billing_first_name, billing_last_name, email_id FROM `" . $wpdb->prefix . "ac_guest_abandoned_cart_history` WHERE id = %d";
                         $results_guest       = $wpdb->get_results( $wpdb->prepare( $query_guest, $wcap_user_id ) );
                         
@@ -594,8 +610,8 @@ if ( ! class_exists( 'Wcap_Salesforce_CRM' ) ) {
                             $user_data = get_userdata( $wcap_user_id ); 
                             $wcap_contact_email = $user_data->user_email;   
                         }
-						
-						$user_first_name_temp = get_user_meta( $wcap_user_id, 'billing_first_name', true );
+                        
+                        $user_first_name_temp = get_user_meta( $wcap_user_id, 'billing_first_name', true );
                         if( isset( $user_first_name_temp ) && "" == $user_first_name_temp ) {
                             $user_data  = get_userdata( $wcap_user_id );
                             $wcap_user_first_name = $user_data->first_name;
@@ -649,13 +665,13 @@ if ( ! class_exists( 'Wcap_Salesforce_CRM' ) ) {
                             $user_billing_state = $user_billing_state_temp[0];
                             $wcap_user_state = $woocommerce->countries->states[ $user_billing_country_temp[0] ][ $user_billing_state ];
                         }
-					}
+                    }
 
                     $address = array(
-					  
-					);
+                      
+                    );
 
-					$cart_info_db_field = json_decode( $abandoned_cart_results[0]->abandoned_cart_info );
+                    $cart_info_db_field = json_decode( $abandoned_cart_results[0]->abandoned_cart_info );
 
                     if( !empty( $cart_info_db_field ) ) {
                         $cart_details           = $cart_info_db_field->cart;
@@ -663,8 +679,8 @@ if ( ! class_exists( 'Wcap_Salesforce_CRM' ) ) {
                     $product_name = '';
                     $wcap_product_details = '';
                     foreach( $cart_details as $cart_details_key => $cart_details_value ) {
-                    	$quantity_total = $cart_details_value->quantity;
-                    	$product_id     = $cart_details_value->product_id;
+                        $quantity_total = $cart_details_value->quantity;
+                        $product_id     = $cart_details_value->product_id;
                         $prod_name      = get_post( $product_id );
                         $product_name   .= $prod_name->post_title;
                         if( isset( $cart_details_value->variation_id ) && '' != $cart_details_value->variation_id ){
@@ -686,11 +702,11 @@ if ( ! class_exists( 'Wcap_Salesforce_CRM' ) ) {
                                     $product_name_with_variable = $product_name_with_variable . "\n". html_entity_decode ( $explode_many_varaition_value );
                                 }
                             }
-                        	$product_name = $product_name_with_variable;
+                            $product_name = $product_name_with_variable;
                         }
 
                        $wcap_product_details = html_entity_decode ( $wcap_product_details . "Product Name: " . $product_name . " , Quantity: " . $quantity_total ) . "\n";
-					}
+                    }
 
                     $wcap_sf_username       = get_option ('wcap_salesforce_user_name');
                     $wcap_sf_password       = get_option ('wcap_salesforce_password');
@@ -725,59 +741,59 @@ if ( ! class_exists( 'Wcap_Salesforce_CRM' ) ) {
                     
                     $wcap_posted_result = Wcap_Add_To_Salesforce_CRM::wcap_add_data_to_salesforce_crm ( $wcap_contact, $wcap_sf_username, $wcap_sf_password, $wcap_sf_security_token, $wcap_sf_user_type, $wcap_product_details );
                 }
-				
-				$wcap_insert_abandoned_id = "INSERT INTO `" . $wpdb->prefix . "wcap_salesforce_abandoned_cart` ( abandoned_cart_id, date_time )
+                
+                $wcap_insert_abandoned_id = "INSERT INTO `" . $wpdb->prefix . "wcap_salesforce_abandoned_cart` ( abandoned_cart_id, date_time )
                                           VALUES ( '" . $id . "', '" . current_time( 'mysql' ) . "' )";      
                 $wpdb->query( $wcap_insert_abandoned_id );
             }
 
             echo $abandoned_order_count . ',' . $wcap_posted_result ;
             wp_die();
-		}
+        }
 
-		function wcap_add_export_all_data_to_salesforce_crm (){
-		   $wcap_salesforce_crm_check = get_option ( 'wcap_enable_salesforce_crm' );
-		   if ( 'on' == $wcap_salesforce_crm_check ) { 
-			?>
-			<a href="javascript:void(0);"  id = "add_all_carts_salesforce" class="button-secondary"><?php _e( 'Export to Salesforce CRM', 'woocommerce-ac' ); ?></a>
-			<?php
-		   }
-		}
+        function wcap_add_export_all_data_to_salesforce_crm (){
+           $wcap_salesforce_crm_check = get_option ( 'wcap_enable_salesforce_crm' );
+           if ( 'on' == $wcap_salesforce_crm_check ) { 
+            ?>
+            <a href="javascript:void(0);"  id = "add_all_carts_salesforce" class="button-secondary"><?php _e( 'Export to Salesforce CRM', 'woocommerce-ac' ); ?></a>
+            <?php
+           }
+        }
 
-		function wcap_add_individual_record_to_salesforce_crm ( $actions, $abandoned_row_info ){
+        function wcap_add_individual_record_to_salesforce_crm ( $actions, $abandoned_row_info ){
 
-			$wcap_salesforce_crm_check = get_option ( 'wcap_enable_salesforce_crm' );
+            $wcap_salesforce_crm_check = get_option ( 'wcap_enable_salesforce_crm' );
 
-			if ( 'on' == $wcap_salesforce_crm_check ) { 
+            if ( 'on' == $wcap_salesforce_crm_check ) { 
 
-				if ( $abandoned_row_info->user_id != 0 ){
-					$abandoned_order_id         = $abandoned_row_info->id ;
-					$class_abandoned_orders     = new WCAP_Abandoned_Orders_Table();
-			        $abandoned_orders_base_url  = $class_abandoned_orders->base_url;
-			        
-			        $inserted['wcap_add_agile'] = '<a href="javascript:void(0);" class="add_single_cart_salesforce" data-id="' . $abandoned_order_id . '">' . __( 'Add to Salesforce CRM', 'woocommerce-ac' ) . '</a>';
+                if ( $abandoned_row_info->user_id != 0 ){
+                    $abandoned_order_id         = $abandoned_row_info->id ;
+                    $class_abandoned_orders     = new WCAP_Abandoned_Orders_Table();
+                    $abandoned_orders_base_url  = $class_abandoned_orders->base_url;
+                    
+                    $inserted['wcap_add_agile'] = '<a href="javascript:void(0);" class="add_single_cart_salesforce" data-id="' . $abandoned_order_id . '">' . __( 'Add to Salesforce CRM', 'woocommerce-ac' ) . '</a>';
 
-			        $count = count ( $actions ) - 1 ;
+                    $count = count ( $actions ) - 1 ;
 
-			        array_splice( $actions, $count, 0, $inserted ); // it will add the new data just before the Trash link.
-		    	}
-	    	}
+                    array_splice( $actions, $count, 0, $inserted ); // it will add the new data just before the Trash link.
+                }
+            }
 
-	        return $actions;
-		}
+            return $actions;
+        }
 
-		function wcap_add_bulk_record_to_salesforce_crm ( $wcap_abandoned_bulk_actions ){
-			$wcap_salesforce_crm_check = get_option ( 'wcap_enable_salesforce_crm' );
-			if ( 'on' == $wcap_salesforce_crm_check ) {
-				$inserted = array(
-		        	'wcap_add_salesforce' => __( 'Add to Salesforce CRM', 'woocommerce-ac' )
-		    	);
-				
-		        $wcap_abandoned_bulk_actions =  $wcap_abandoned_bulk_actions + $inserted ;
-	    	}
-	        return $wcap_abandoned_bulk_actions;
-		}
+        function wcap_add_bulk_record_to_salesforce_crm ( $wcap_abandoned_bulk_actions ){
+            $wcap_salesforce_crm_check = get_option ( 'wcap_enable_salesforce_crm' );
+            if ( 'on' == $wcap_salesforce_crm_check ) {
+                $inserted = array(
+                    'wcap_add_salesforce' => __( 'Add to Salesforce CRM', 'woocommerce-ac' )
+                );
+                
+                $wcap_abandoned_bulk_actions =  $wcap_abandoned_bulk_actions + $inserted ;
+            }
+            return $wcap_abandoned_bulk_actions;
+        }
 
-	}
+    }
 }
 $wcap_agile_crm_call = new Wcap_Salesforce_CRM();
