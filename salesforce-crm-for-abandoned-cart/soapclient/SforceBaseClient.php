@@ -316,14 +316,12 @@ class SforceBaseClient {
 		);
 
 
-		// if(in_array($call, $packageVersionHeaderCalls)) {
-		// 	$header = $this->packageVersionHeader;
-		// 	//if ($header != NULL) {
-		// 		array_push($header_array, $header);
-		// 	//}
-		// }
-		
-		var_dump ($header_array);
+		if(in_array($call, $packageVersionHeaderCalls)) {
+			$header = $this->packageVersionHeader;
+			if ($header != NULL) {
+				array_push($header_array, $header);
+			}
+		}
 		$this->sforce->__setSoapHeaders($header_array);
 	}
 

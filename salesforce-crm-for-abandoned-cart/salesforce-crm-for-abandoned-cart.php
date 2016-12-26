@@ -541,7 +541,13 @@ if ( ! class_exists( 'Wcap_Salesforce_CRM' ) ) {
                 $ids = $_POST ['wcap_abandoned_cart_ids'];
             }
             
-            $abandoned_order_count      = count ( $ids );            
+            $abandoned_order_count      = count ( $ids ); 
+
+            $wcap_sf_username       = get_option ( 'wcap_salesforce_user_name' );
+            $wcap_sf_password       = get_option ( 'wcap_salesforce_password' );
+            $wcap_sf_security_token = get_option ( 'wcap_salesforce_security_token' );
+            $wcap_sf_user_type      = get_option ( 'wcap_salesforce_user_type' );
+            $wcap_lead_company      = get_option ( 'wcap_salesforce_lead_company' ) == '' ? 'Abandoned Cart Plugin ' : get_option ( 'wcap_salesforce_lead_company' );           
             foreach ( $ids as $id ) {
                 $get_abandoned_cart     = "SELECT * FROM `".$wpdb->prefix."ac_abandoned_cart_history` WHERE id = $id";
                 $abandoned_cart_results = $wpdb->get_results( $get_abandoned_cart );
@@ -667,12 +673,6 @@ if ( ! class_exists( 'Wcap_Salesforce_CRM' ) ) {
                         }
                        $wcap_product_details = html_entity_decode ( $wcap_product_details . "Product Name: " . $product_name . " , Quantity: " . $quantity_total ) . "\n";
                     }
-
-                    $wcap_sf_username       = get_option ( 'wcap_salesforce_user_name' );
-                    $wcap_sf_password       = get_option ( 'wcap_salesforce_password' );
-                    $wcap_sf_security_token = get_option ( 'wcap_salesforce_security_token' );
-                    $wcap_sf_user_type      = get_option ( 'wcap_salesforce_user_type' );
-                    $wcap_lead_company      = get_option ( 'wcap_salesforce_lead_company' ) == '' ? 'Abandoned Cart Plugin ' : get_option ( 'wcap_salesforce_lead_company' );
                     $wcap_contact = array();
                     if ( 'lead' == $wcap_sf_user_type ){                        
                         $wcap_contact = array(
@@ -684,7 +684,8 @@ if ( ! class_exists( 'Wcap_Salesforce_CRM' ) ) {
                             "city"       => $wcap_user_city,
                             "state"      => $wcap_user_state,
                             "country"    => $wcap_user_country,
-                            "company"    => $wcap_lead_company
+                            "company"    => $wcap_lead_company,
+                            "description" => $wcap_product_details
                         );
                     } else if ( 'contact' == $wcap_sf_user_type ){                        
                         $wcap_contact = array(

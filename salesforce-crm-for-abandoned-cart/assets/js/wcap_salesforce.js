@@ -71,7 +71,7 @@ jQuery(function( $ ) {
 			if ( abadoned_order_count > 1 ) {
 				order 				 = 'orders';
 			}			
-			var display_message      = abadoned_order_count  + ' Abandoned ' +  order + ' has been successfully added to Agile CRM.'
+			var display_message      = abadoned_order_count  + ' Abandoned ' +  order + ' has been successfully added to Salesforce CRM.'
 			$( ".wcap_salesforce_message_p" ).html( display_message );
             $( "#wcap_salesforce_message" ).fadeIn();
             setTimeout( function(){
@@ -89,7 +89,7 @@ jQuery(function( $ ) {
 			  	for ( var i = 0; i < checkboxes.length; i++ ) {			     
 			     	if ( checkboxes[i].checked ) {
 			     		var email_check = $( checkboxes[i] ).parent().parent().find('.email').text();
-			     		var wcap_salesforce = email_check.indexOf( "Add to salesforce CRM" );
+			     		var wcap_salesforce = email_check.indexOf( "Add to Salesforce CRM" );
 			     		wcap_parent [ checkboxes[i].value ] =  wcap_salesforce ;
 			        	wcap_selected_id.push( checkboxes[i].value );
 			    	}
@@ -230,7 +230,7 @@ jQuery(function( $ ) {
 				}				
 				var display_message      = abadoned_order_count  + ' Abandoned ' +  order + ' has been successfully added to Salesforce CRM.'
 				$( ".wcap_salesforce_message_p" ).html( display_message );
-	            $( "#wcap_agile_message" ).fadeIn();
+	            $( "#wcap_salesforce_message" ).fadeIn();
 	            setTimeout( function(){
 	            	$( "#wcap_salesforce_message" ).fadeOut();
 	            },4000);
