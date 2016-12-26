@@ -2,7 +2,7 @@
 /*
 Plugin Name: Salesforce CRM Addon for Abandoned Cart Pro for WooCommerce
 Plugin URI: http://www.tychesoftwares.com/store/premium-plugins/woocommerce-abandoned-cart-pro
-Description: This plugin allow you to export the abandoned cart data to your Salesforce CRM.
+Description: This plugin allows you to export the abandoned cart data to your Salesforce CRM. 
 Version: 1.0
 Author: Tyche Softwares
 Author URI: http://www.tychesoftwares.com/
