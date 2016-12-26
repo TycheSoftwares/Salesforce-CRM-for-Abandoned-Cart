@@ -191,7 +191,7 @@ if ( ! class_exists( 'Wcap_Salesforce_CRM' ) ) {
 
             add_settings_field(
                 '',
-                __( 'Automatically add abandoned cart data to salesforce CRM after set time.', 'woocommerce-ac' ),
+                __( 'Automatically add abandoned cart data to salesforce CRM after the set time.', 'woocommerce-ac' ),
                 array( $this, 'wcap_add_automatically_add_after_time_callback' ),
                 'wcap_salesforce_crm_section',
                 'wcap_salesforce_crm_general_settings_section',
