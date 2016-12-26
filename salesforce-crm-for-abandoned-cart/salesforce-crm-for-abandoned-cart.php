@@ -222,7 +222,7 @@ if ( ! class_exists( 'Wcap_Salesforce_CRM' ) ) {
                 array( $this, 'wcap_salesforce_security_token_callback' ),
                 'wcap_salesforce_crm_section',
                 'wcap_salesforce_crm_general_settings_section',
-                array( __( 'Please provide your Salesforce Security Token. Please login to your salesforce accout then click on the Settings > My Personal Information > Reset My Security Token. Once you have click on the Reset Security Token, ou will recive an email with the security token.', 'woocommerce-ac' ) )
+                array( __( 'Please provide your Salesforce Security Token. Please, login to your salesforce account. In the Lightning Experience view, in the View Profile option, click on the Settings > My Personal Information > Reset My Security Token menu. Clicking on the Reset Security Token button, you will receive an email with your new security token.', 'woocommerce-ac' ) )
             );
 
             add_settings_field(
@@ -231,7 +231,7 @@ if ( ! class_exists( 'Wcap_Salesforce_CRM' ) ) {
                 array( $this, 'wcap_salesforce_user_type_callback' ),
                 'wcap_salesforce_crm_section',
                 'wcap_salesforce_crm_general_settings_section',
-                array( __( 'Please select the user type which you want to create on your salesforce account.', 'woocommerce-ac' ) )
+                array( __( "Please select in which type the abandoned cart data should be exported to Salesforce CRM. <br/> Note: The product details in the abandoned cart data will be exported in a note when exported as a Contact. When exporting as a Lead, the product detail in the abandoned cart will be exported in the Lead's Detail Description along with the Customer's personal information.", 'woocommerce-ac' ) )
             );
 
             add_settings_field(
@@ -240,7 +240,7 @@ if ( ! class_exists( 'Wcap_Salesforce_CRM' ) ) {
                 array( $this, 'wcap_salesforce_lead_company_callback' ),
                 'wcap_salesforce_crm_section',
                 'wcap_salesforce_crm_general_settings_section',
-                array( __( 'Please select the user type which you want to create on your salesforce account.', 'woocommerce-ac' )  )
+                array( __( 'Please set the Company name for lead.', 'woocommerce-ac' )  )
             );
                         
             // Finally, we register the fields with WordPress
@@ -515,7 +515,7 @@ if ( ! class_exists( 'Wcap_Salesforce_CRM' ) ) {
              */
             if ( 'wcap_crm' == $wcap_action ) {
                 ?>
-                <p><?php _e( 'Change settings for exporting the abandoned cart data to the salesforce CRM.', 'woocommerce-ac' ); ?></p>
+                <p><?php _e( 'Change settings for exporting the abandoned cart data to the Salesforce CRM.', 'woocommerce-ac' ); ?></p>
                 <form method="post" action="options.php">
                     <?php settings_fields     ( 'wcap_salesforce_crm_setting' ); ?>
                     <?php do_settings_sections( 'wcap_salesforce_crm_section' ); ?>
