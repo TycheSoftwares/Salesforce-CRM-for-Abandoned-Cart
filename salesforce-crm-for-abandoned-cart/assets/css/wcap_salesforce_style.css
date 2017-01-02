@@ -7,3 +7,11 @@
 	display:none; 
 	color:red;
 }
+
+#wcap_salesforce_user_name, #wcap_salesforce_security_token{
+	width: 18em;
+}
+
+#wcap_salesforce_test_connection_ajax_loader{
+	display: none;
+}

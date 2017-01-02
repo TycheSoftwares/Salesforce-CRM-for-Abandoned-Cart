@@ -56,6 +56,8 @@ function wcap_salesforce_crm_uninstall (){
     delete_option( 'wcap_salesforce_user_type' );
     delete_option( 'wcap_salesforce_lead_company' );
 
+    delete_option ( 'wcap_salesforce_connection_established' );
+
     wp_clear_scheduled_hook( 'wcap_salesforce_add_abandoned_data_schedule' );
 }
 
@@ -86,6 +88,37 @@ if ( ! class_exists( 'Wcap_Salesforce_CRM' ) ) {
              */
             add_action ( 'update_option_wcap_sf_add_automatically_add_after_email_frequency',  array( &$this,'wcap_salesforce_reset_cron_time_duration' ),11 );
             add_action ( 'update_option_wcap_sf_add_automatically_add_after_time_day_or_hour', array( &$this,'wcap_salesforce_reset_cron_time_duration' ),11 );
+
+            /*
+            Test Connection for saved settings
+            */
+            add_action ( 'wp_ajax_wcap_salesforce_check_connection',                           array( &$this, 'wcap_salesforce_check_connection_callback' ));
+        }
+
+        function wcap_salesforce_check_connection_callback(){
+
+            $wcap_sf_password = $_POST['wcap_sf_password'];
+            $wcap_sf_username = $_POST['wcap_sf_user_name'];
+            $wcap_sf_api      = $_POST['wcap_sf_token'];
+            $wacp_pswd_token  = $wcap_sf_password . $wcap_sf_api;
+            $result           = '';  
+            try{
+                $wcap_SforceConnection = new SforcePartnerClient();
+                $wcap_plguins_url      = plugins_url() . '/salesforce-crm-for-abandoned-cart';
+          
+                $wcap_mySoapClient     = $wcap_SforceConnection->createConnection( $wcap_plguins_url .'/soapclient/partner.wsdl.xml');
+                $wcap_loginResult      = $wcap_SforceConnection->login( $wcap_sf_username, $wacp_pswd_token );
+                $result                = "The Salesforce CRM connection successfuly established!";
+                update_option ( 'wcap_salesforce_connection_established', 'yes' );
+            } catch (Exception $e) {
+                $wcap_login_result = $e->faultstring; 
+                if ( preg_match( "/INVALID_LOGIN/i", $wcap_login_result ) ) {
+                    $result = "The Salesforce CRM connection has FAILED! Please check your credentials!";
+                    update_option ( 'wcap_salesforce_connection_established', 'no' );
+                }
+            } 
+            echo $result;
+            wp_die();
         }
 
         function wcap_salesforce_crm_create_table() {
@@ -128,8 +161,16 @@ if ( ! class_exists( 'Wcap_Salesforce_CRM' ) ) {
             } else {
                 wp_register_script( 'wcap-salesforce', plugins_url()  . '/salesforce-crm-for-abandoned-cart/assets/js/wcap_salesforce.js', array( 'jquery' ) );
                 wp_enqueue_script( 'wcap-salesforce' );
+                $wcap_sf_user_name              = get_option ( 'wcap_salesforce_user_name' );
+                $wcap_sf_password               = get_option ( 'wcap_salesforce_password' );
+                $wcap_sf_token                  = get_option ( 'wcap_salesforce_security_token' );
+                $wcap_sf_connection_established = get_option ( 'wcap_salesforce_connection_established' );
                 wp_localize_script( 'wcap-salesforce', 'wcap_salesforce_params', array(
-                                    'ajax_url' => admin_url( 'admin-ajax.php' )
+                                    'ajax_url'                       => admin_url( 'admin-ajax.php' ),
+                                    'wcap_sf_user_name'              => $wcap_sf_user_name,
+                                    'wcap_sf_password'               => $wcap_sf_password,
+                                    'wcap_sf_token'                  => $wcap_sf_token,
+                                    'wcap_sf_connection_established' => $wcap_sf_connection_established
                 ) );
             }
         }
@@ -241,6 +282,14 @@ if ( ! class_exists( 'Wcap_Salesforce_CRM' ) ) {
                 'wcap_salesforce_crm_section',
                 'wcap_salesforce_crm_general_settings_section',
                 array( __( 'Please set the Company name for lead.', 'woocommerce-ac' )  )
+            );
+
+            add_settings_field(
+               'wcap_salesforce_test_connection',
+               '',
+               array( $this, 'wcap_salesforce_test_connection_callback' ),
+               'wcap_salesforce_crm_section',
+               'wcap_salesforce_crm_general_settings_section'
             );
                         
             // Finally, we register the fields with WordPress
@@ -494,6 +543,13 @@ if ( ! class_exists( 'Wcap_Salesforce_CRM' ) ) {
             echo $html;
         }
 
+        public static function wcap_salesforce_test_connection_callback() {
+            
+            print "<a href='' id='wcap_salesforce_test' class= 'wcap_salesforce_test' >" . __( 'Test Connection', 'woocommerce-ac' ) . "</a> &nbsp &nbsp
+                <img src='" . plugins_url() . "/woocommerce-abandon-cart-pro/assets/images/loading.gif' alt='Loading...' id='wcap_salesforce_test_connection_ajax_loader' class = 'wcap_salesforce_test_connection_ajax_loader' >";
+            print "<div id='wcap_salesforce_test_connection_message'></div>";
+        }
+
         function wcap_salesforce_crm_display_data () {
             ?>
             <div id="wcap_manual_email_data_loading" >
@@ -516,11 +572,10 @@ if ( ! class_exists( 'Wcap_Salesforce_CRM' ) ) {
             if ( 'wcap_crm' == $wcap_action ) {
                 ?>
                 <p><?php _e( 'Change settings for exporting the abandoned cart data to the Salesforce CRM.', 'woocommerce-ac' ); ?></p>
-                <form method="post" action="options.php">
+                <form method="post" action="options.php" id="wcap_salesforce_crm_form">
                     <?php settings_fields     ( 'wcap_salesforce_crm_setting' ); ?>
                     <?php do_settings_sections( 'wcap_salesforce_crm_section' ); ?>
-                    <?php settings_errors(); ?>
-                    <?php submit_button('Save Salesforce Changes'); ?>
+                    <?php submit_button( 'Save Salesforce Setting', 'primary', 'wcap-save-salesforce-settings' ); ?>
                 </form>
                 <?php
             }
@@ -671,7 +726,7 @@ if ( ! class_exists( 'Wcap_Salesforce_CRM' ) ) {
                             }
                             $product_name = $product_name_with_variable;
                         }
-                       $wcap_product_details = html_entity_decode ( $wcap_product_details . "Product Name: " . $product_name . " , Quantity: " . $quantity_total ) . "\n";
+                       $wcap_product_details .= html_entity_decode ( "Product Name: " . $product_name . " , Quantity: " . $quantity_total ) . "\n";
                     }
                     $wcap_contact = array();
                     if ( 'lead' == $wcap_sf_user_type ){                        
@@ -709,7 +764,8 @@ if ( ! class_exists( 'Wcap_Salesforce_CRM' ) ) {
 
         function wcap_add_export_all_data_to_salesforce_crm () {
            $wcap_salesforce_crm_check = get_option ( 'wcap_enable_salesforce_crm' );
-           if ( 'on' == $wcap_salesforce_crm_check ) { 
+           $wcap_sf_crm_check_connection = get_option ( 'wcap_salesforce_connection_established' );
+           if ( 'on' == $wcap_salesforce_crm_check && 'yes' == $wcap_sf_crm_check_connection ) { 
             ?>
             <a href="javascript:void(0);"  id = "add_all_carts_salesforce" class="button-secondary"><?php _e( 'Export to Salesforce CRM', 'woocommerce-ac' ); ?></a>
             <?php
@@ -718,12 +774,13 @@ if ( ! class_exists( 'Wcap_Salesforce_CRM' ) ) {
 
         function wcap_add_individual_record_to_salesforce_crm ( $actions, $abandoned_row_info ) {
             $wcap_salesforce_crm_check = get_option ( 'wcap_enable_salesforce_crm' );
-            if ( 'on' == $wcap_salesforce_crm_check ) { 
+            $wcap_sf_crm_check_connection = get_option ( 'wcap_salesforce_connection_established' );
+            if ( 'on' == $wcap_salesforce_crm_check && 'yes' == $wcap_sf_crm_check_connection ) { 
                 if ( $abandoned_row_info->user_id != 0 ) {
                     $abandoned_order_id         = $abandoned_row_info->id ;
                     $class_abandoned_orders     = new WCAP_Abandoned_Orders_Table();
                     $abandoned_orders_base_url  = $class_abandoned_orders->base_url;                    
-                    $inserted['wcap_add_agile'] = '<a href="javascript:void(0);" class="add_single_cart_salesforce" data-id="' . $abandoned_order_id . '">' . __( 'Add to Salesforce CRM', 'woocommerce-ac' ) . '</a>';
+                    $inserted['wcap_add_salesforce'] = '<a href="javascript:void(0);" class="add_single_cart_salesforce" data-id="' . $abandoned_order_id . '">' . __( 'Add to Salesforce CRM', 'woocommerce-ac' ) . '</a>';
                     $count                      = count ( $actions ) - 1 ;
                     array_splice( $actions, $count, 0, $inserted ); // it will add the new data just before the Trash link.
                 }
@@ -732,8 +789,9 @@ if ( ! class_exists( 'Wcap_Salesforce_CRM' ) ) {
         }
 
         function wcap_add_bulk_record_to_salesforce_crm ( $wcap_abandoned_bulk_actions ){
-            $wcap_salesforce_crm_check = get_option ( 'wcap_enable_salesforce_crm' );
-            if ( 'on' == $wcap_salesforce_crm_check ) {
+            $wcap_salesforce_crm_check    = get_option ( 'wcap_enable_salesforce_crm' );
+            $wcap_sf_crm_check_connection = get_option ( 'wcap_salesforce_connection_established' );
+            if ( 'on' == $wcap_salesforce_crm_check && 'yes' == $wcap_sf_crm_check_connection ) {
                 $inserted = array(
                     'wcap_add_salesforce' => __( 'Add to Salesforce CRM', 'woocommerce-ac' )
                 );                
@@ -743,4 +801,4 @@ if ( ! class_exists( 'Wcap_Salesforce_CRM' ) ) {
         }
     }
 }
-$wcap_agile_crm_call = new Wcap_Salesforce_CRM();
+$wcap_sf_crm_call = new Wcap_Salesforce_CRM();

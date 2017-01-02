@@ -1,12 +1,11 @@
 <?php
 /*
-* This class help to add / get / delete the data to the Agile CRM
+* This class help to insert lead / contact & notes to the Salesforce CRM
 */
 class Wcap_Add_To_Salesforce_CRM
 {
     public static function wcap_add_data_to_salesforce_crm ( $data, $wcap_sf_username, $wcap_sf_password, $wcap_sf_security_token, $wcap_sf_user_type, $wcap_product_details ) {
 
-        //wp_mail ('kiribhavik4@gmail.com', 'add to crm', 'frm cron');
         $mySforceConnection = new SforcePartnerClient();
         $wcap_plguins_url   = plugins_url() . '/salesforce-crm-for-abandoned-cart';
       
@@ -79,13 +78,10 @@ class Wcap_Add_To_Salesforce_CRM
           try {
             $createResponse = $mySforceConnection->create( array ( $sObject1 ) );
             $old_data = ob_get_clean();
-            
             echo 'notes , ';
           } catch (SoapFault $fault) {
             $old_data = ob_get_clean();
-            //echo ( $fault->faultstring);
             echo 'notes_error , ';
-
           }
         }
 

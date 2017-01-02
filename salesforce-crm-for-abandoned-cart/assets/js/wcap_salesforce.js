@@ -1,9 +1,38 @@
 jQuery(function( $ ) {
+
+	var wcap_sf_connection_established = '';
+
+	$ ( '#wcap_salesforce_test' ).on( 'click', function( e ) {
+		e.preventDefault();
+
+		var wcap_sf_user_name = $("#wcap_salesforce_user_name").val();
+		var wcap_sf_password  = $("#wcap_salesforce_password").val();
+		var wcap_sf_token     = $("#wcap_salesforce_security_token").val();
+        
+        var data = {
+            wcap_sf_user_name: wcap_sf_user_name,
+            wcap_sf_password: wcap_sf_password,
+            wcap_sf_token: wcap_sf_token,
+            action: 'wcap_salesforce_check_connection'
+        };
+        
+        $( '#wcap_salesforce_test_connection_ajax_loader' ).show();
+        $.post( wcap_salesforce_params.ajax_url, data, function( response ) {
+        	wcap_check_string = response.indexOf("successfuly established");
+        	if ( wcap_check_string !== -1 ){
+        		wcap_sf_connection_established = 'yes';
+        	}
+    		$( '#wcap_salesforce_test_connection_message' ).html( response );
+	        $( '#wcap_salesforce_test_connection_ajax_loader' ).hide();
+        });
+	});
+
 	$ ( '.button-primary' ).on( 'click', function( e ) {
-		if ( $(this).val() == 'Save Salesforce Changes' ) {			
-			var wcap_sf_user_name = document.getElementById( 'wcap_salesforce_user_name' ).value;
-			var wcap_sf_passwrod  = document.getElementById( 'wcap_salesforce_password' ).value;
-			var wcap_sf_token     = document.getElementById( 'wcap_salesforce_security_token' ).value;
+		if ( $(this).val() == 'Save Salesforce Setting' ) {			
+			var wcap_sf_user_name = $("#wcap_salesforce_user_name").val();
+			var wcap_sf_password  = $("#wcap_salesforce_password").val();
+			var wcap_sf_token     = $("#wcap_salesforce_security_token").val();
+
 			if ( '' == wcap_sf_token ) {
 				$( "#wcap_salesforce_security_token_label_error" ).fadeIn();
 	            setTimeout( function(){
@@ -11,7 +40,7 @@ jQuery(function( $ ) {
 		        },4000);
 		        e.preventDefault();
 			}
-			if ( '' == wcap_sf_passwrod ) {
+			if ( '' == wcap_sf_password ) {
 				$( "#wcap_salesforce_password_label_error" ).fadeIn();
 	            setTimeout( function() {
 		            $( "#wcap_salesforce_password_label_error" ).fadeOut();
@@ -24,6 +53,30 @@ jQuery(function( $ ) {
 		            $( "#wcap_salesforce_user_name_label_error" ).fadeOut();
 		        },4000);
 	            e.preventDefault();
+			}
+
+			if ( ( wcap_salesforce_params.wcap_sf_user_name  != wcap_sf_user_name 
+				|| wcap_salesforce_params.wcap_sf_token    != wcap_sf_token
+				|| wcap_salesforce_params.wcap_sf_password != wcap_sf_password ) &&
+				 ( wcap_salesforce_params.wcap_sf_connection_established != 'yes' || wcap_sf_connection_established != 'yes') ){
+				e.preventDefault();
+				var data = {
+		            wcap_sf_user_name: wcap_sf_user_name,
+		            wcap_sf_password: wcap_sf_password,
+		            wcap_sf_token: wcap_sf_token,
+		            action: 'wcap_salesforce_check_connection'
+		        };
+		        $( '#wcap_salesforce_test_connection_ajax_loader' ).show();
+		        $.post( wcap_salesforce_params.ajax_url, data, function( response ) {
+
+		    		wcap_check_string = response.indexOf("successfuly established");
+		    		$( '#wcap_salesforce_test_connection_ajax_loader' ).hide();
+		    		if ( wcap_check_string !== -1 ){
+			    		$('#wcap_salesforce_crm_form').submit();
+			        }else{
+			    		$( '#wcap_salesforce_test_connection_message' ).html( response );
+					}
+			    });
 			}
 		}
 	});
