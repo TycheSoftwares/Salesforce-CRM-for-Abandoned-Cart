@@ -442,6 +442,15 @@ if ( ! class_exists( 'Wcap_Salesforce_CRM' ) ) {
                     </strong>
                 </p>
             </div>
+
+            <div id="wcap_salesforce_message_error" class="error settings-error notice is-dismissible">
+                <p class="wcap_salesforce_message_p_error">
+                    <strong>
+                        <?php _e( "" ); ?>
+                    </strong>
+                </p>
+            </div>
+
             <?php 
         }
         /***************************************************************
@@ -587,13 +596,24 @@ if ( ! class_exists( 'Wcap_Salesforce_CRM' ) ) {
             if ( $_POST [ 'wcap_all' ] == 'yes' ) {
                 $blank_cart_info         = '{"cart":[]}';
                 $blank_cart_info_guest   = '[]';
-                $wcap_get_all_abandoned_carts = "SELECT id FROM `".$wpdb->prefix."ac_abandoned_cart_history` WHERE user_id > 0 AND recovered_cart = 0 AND abandoned_cart_info NOT LIKE '$blank_cart_info_guest' AND abandoned_cart_info NOT LIKE '%$blank_cart_info%'";                
+                $wcap_get_all_abandoned_carts = "SELECT id FROM `".$wpdb->prefix."ac_abandoned_cart_history` WHERE `id` NOT IN ( SELECT abandoned_cart_id FROM `".$wpdb->prefix."wcap_salesforce_abandoned_cart`) AND user_id > 0 AND recovered_cart = 0 AND abandoned_cart_info NOT LIKE '$blank_cart_info_guest' AND abandoned_cart_info NOT LIKE '%$blank_cart_info%'";                
                 $abandoned_cart_results  = $wpdb->get_results( $wcap_get_all_abandoned_carts );
+
+                if ( empty( $abandoned_cart_results ) ){
+                    echo 'no_record';
+                    wp_die();
+                }
                 foreach ( $abandoned_cart_results as $abandoned_cart_results_key => $abandoned_cart_results_value ) {
                     $ids [] = $abandoned_cart_results_value->id;
                 }
             } else {
                 $ids = $_POST ['wcap_abandoned_cart_ids'];
+
+                $wcap_check_duplicate_record = $wpdb->get_var ( "SELECT abandoned_cart_id FROM `".$wpdb->prefix."wcap_salesforce_abandoned_cart` WHERE `abandoned_cart_id` = $ids[0]" ); 
+                if ( $wcap_check_duplicate_record > 0 ){
+                    echo 'duplicate_record';
+                    wp_die();
+                }
             }
             
             $abandoned_order_count      = count ( $ids ); 
