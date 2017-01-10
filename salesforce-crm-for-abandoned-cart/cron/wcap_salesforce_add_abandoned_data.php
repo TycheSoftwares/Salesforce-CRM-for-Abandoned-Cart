@@ -180,7 +180,7 @@ class Wcap_Salesforce_CRM_Add_Cron_Data {
                 $quantity_total = $cart_details_value->quantity;
                 $product_id     = $cart_details_value->product_id;
                 $prod_name      = get_post( $product_id );
-                $product_name   .= $prod_name->post_title;
+                $product_name   = $prod_name->post_title;
                 if( isset( $cart_details_value->variation_id ) && '' != $cart_details_value->variation_id ){
                     $variation_id               = $cart_details_value->variation_id;
                     $variation                  = wc_get_product( $variation_id );
@@ -202,7 +202,7 @@ class Wcap_Salesforce_CRM_Add_Cron_Data {
                     }
                     $product_name = $product_name_with_variable;
                 }
-               $wcap_product_details = html_entity_decode ( $wcap_product_details . "Product Name: " . $product_name . " , Quantity: " . $quantity_total ) . "\n";
+               $wcap_product_details .= html_entity_decode ( "Product Name: " . $product_name . " , Quantity: " . $quantity_total ) . "\n";
             }
             $wcap_contact = array();
             if ( 'lead' == $wcap_sf_user_type ){                        
