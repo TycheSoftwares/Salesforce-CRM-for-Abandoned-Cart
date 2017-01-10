@@ -534,9 +534,9 @@ if ( ! class_exists( 'Wcap_Salesforce_CRM' ) ) {
         **************************************************************/
         function wcap_salesforce_lead_company_callback($args) {
             $wcap_salesforce_user_type = get_option( 'wcap_salesforce_user_type' );
-            $display                   = 'none';
-            if ( 'lead' == $wcap_salesforce_user_type ){
-                $display = 'block';
+            $display                   = '';
+            if ( 'contact' == $wcap_salesforce_user_type ){
+                $display = 'none';
             }            
             // First, we read the option
             $wcap_salesforce_lead_company = get_option( 'wcap_salesforce_lead_company' );            
