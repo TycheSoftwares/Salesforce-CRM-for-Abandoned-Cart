@@ -86,6 +86,7 @@ jQuery(function( $ ) {
 		wcap_selected_id.push ( $( this ).attr( 'data-id' ) );
 		var wcap_all = '';
 		$( '#wcap_manual_email_data_loading' ).show();
+		$( '#wcap_manual_email_data_loading_text' ).show();
 		var data = {
 			action                  : 'wcap_add_to_salesforce_crm',
 			wcap_abandoned_cart_ids : wcap_selected_id,
@@ -94,6 +95,7 @@ jQuery(function( $ ) {
 
 		$.post( wcap_salesforce_params.ajax_url, data, function( response ) {
 			$( '#wcap_manual_email_data_loading' ).hide();
+			$( '#wcap_manual_email_data_loading_text' ).hide();
 			var wcap_check_string = response.indexOf("duplicate_record");
 			if ( wcap_check_string !== -1 ){
 
@@ -123,9 +125,13 @@ jQuery(function( $ ) {
 	});
 
 	$ ( '#add_all_carts_salesforce' ).on( 'click', function( e ) {		
+
+
 		wcap_all = 'yes';
 		var wcap_selected_id = [];
 		$( '#wcap_manual_email_data_loading' ).show();
+		$( '#wcap_manual_email_data_loading_text' ).show();
+
 		var data = {
 			action                  : 'wcap_add_to_salesforce_crm',
 			wcap_abandoned_cart_ids : wcap_selected_id,
@@ -134,6 +140,7 @@ jQuery(function( $ ) {
 
 		$.post( wcap_salesforce_params.ajax_url, data, function( response ) {
 			$( '#wcap_manual_email_data_loading' ).hide();
+			$( '#wcap_manual_email_data_loading_text' ).hide();
 
 			var wcap_check_string = response.indexOf("no_record");
 			if ( wcap_check_string !== -1 ){
@@ -167,7 +174,6 @@ jQuery(function( $ ) {
 			
 			var checkboxes = document.getElementsByName('abandoned_order_id[]');
 			var wcap_selected_id = [];
-			var wcap_selected_id = [];
 			var wcap_parent      = [];
 		  	for (var i = 0; i < checkboxes.length; i++) {
 		     
@@ -181,10 +187,10 @@ jQuery(function( $ ) {
 
 		  	if ( wcap_selected_id.length == 0 ) {
 		  		var display_message = 'Please select atleast 1 Abandoned order to Add to Salesforce CRM.';
-				$( ".wcap_salesforce_message_p" ).html( display_message );
-	            $( "#wcap_ac_bulk_message" ).fadeIn();
+				$( ".wcap_salesforce_message_p_error" ).html( display_message );
+	            $( "#wcap_salesforce_message_error" ).fadeIn();
 	            setTimeout( function(){
-	            	$( "#wcap_ac_bulk_message" ).fadeOut();
+	            	$( "#wcap_salesforce_message_error" ).fadeOut();
 	            },3000);
 		  		e.preventDefault();	
 		  		return;
@@ -201,10 +207,10 @@ jQuery(function( $ ) {
 				}					
 				if ( 'no' == allow ) {
 					var display_message = 'Add to Salesforce CRM cannot be applied on Visitor carts.';
-					$( ".wcap_ac_bulk_message_p" ).html( display_message );
-		            $( "#wcap_salesforce_message" ).fadeIn();
+					$( ".wcap_salesforce_message_p_error" ).html( display_message );
+		            $( "#wcap_salesforce_message_error" ).fadeIn();
 		            setTimeout( function() {
-		            	$( "#wcap_salesforce_message" ).fadeOut();
+		            	$( "#wcap_salesforce_message_error" ).fadeOut();
 		            },3000);
 					e.preventDefault();
 					return;
@@ -213,6 +219,7 @@ jQuery(function( $ ) {
 
 		  	var wcap_all = '';
 		  	$( '#wcap_manual_email_data_loading' ).show();
+		  	$( '#wcap_manual_email_data_loading_text' ).show();
 			var data = {
 				action                  : 'wcap_add_to_salesforce_crm',
 				wcap_abandoned_cart_ids : wcap_selected_id,
@@ -221,7 +228,7 @@ jQuery(function( $ ) {
 			
 			$.post( wcap_salesforce_params.ajax_url, data, function( response ) {
 				$( '#wcap_manual_email_data_loading' ).hide();
-
+				$( '#wcap_manual_email_data_loading_text' ).hide();
 				var wcap_check_string = response.indexOf("duplicate_record");
 				if ( wcap_check_string !== -1 ){
 
@@ -271,10 +278,10 @@ jQuery(function( $ ) {
 
 		  	if ( wcap_selected_id.length == 0 ) {
 		  		var display_message = 'Please select atleast 1 Abandoned order to Add to Salesforce CRM.';
-				$( ".wcap_salesforce_message_p" ).html( display_message );
-	            $( "#wcap_ac_bulk_message" ).fadeIn();
+				$( ".wcap_salesforce_message_p_error" ).html( display_message );
+	            $( "#wcap_salesforce_message_error" ).fadeIn();
 	            setTimeout( function(){
-	            	$( "#wcap_ac_bulk_message" ).fadeOut();
+	            	$( "#wcap_salesforce_message_error" ).fadeOut();
 	            },3000);
 		  		e.preventDefault();	
 		  		return;
@@ -291,10 +298,10 @@ jQuery(function( $ ) {
 				}					
 				if ( 'no' == allow ) {
 					var display_message = 'Add to Salesforce CRM cannot be applied on Visitor carts.';
-					$( ".wcap_ac_bulk_message_p" ).html( display_message );
-		            $( "#wcap_salesforce_message" ).fadeIn();
+					$( ".wcap_salesforce_message_p_error" ).html( display_message );
+		            $( "#wcap_salesforce_message_error" ).fadeIn();
 		            setTimeout( function() {
-		            	$( "#wcap_salesforce_message" ).fadeOut();
+		            	$( "#wcap_salesforce_message_error" ).fadeOut();
 		            },3000);
 					e.preventDefault();
 					return;
@@ -303,6 +310,7 @@ jQuery(function( $ ) {
 			
 		  	var wcap_all = '';
 		  	$( '#wcap_manual_email_data_loading' ).show();
+		  	$( '#wcap_manual_email_data_loading_text' ).show();
 			var data = {
 				action                  : 'wcap_add_to_salesforce_crm',
 				wcap_abandoned_cart_ids : wcap_selected_id,
@@ -311,6 +319,7 @@ jQuery(function( $ ) {
 			
 			$.post( wcap_salesforce_params.ajax_url, data, function( response ) {
 				$( '#wcap_manual_email_data_loading' ).hide();
+				$( '#wcap_manual_email_data_loading_text' ).hide();
 				var wcap_check_string = response.indexOf("duplicate_record");
 				if ( wcap_check_string !== -1 ){
 

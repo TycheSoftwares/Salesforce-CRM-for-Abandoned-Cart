@@ -15,3 +15,13 @@
 #wcap_salesforce_test_connection_ajax_loader{
 	display: none;
 }
+
+#wcap_manual_email_data_loading_text{
+	display: none;
+	position: absolute;
+	top: 7%;
+	left: 34%;
+	z-index: 99999;
+	width: auto;
+	color: white;
+}

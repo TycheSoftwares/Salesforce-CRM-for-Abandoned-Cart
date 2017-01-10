@@ -564,6 +564,7 @@ if ( ! class_exists( 'Wcap_Salesforce_CRM' ) ) {
             <div id="wcap_manual_email_data_loading" >
                 <img  id="wcap_manual_email_data_loading_image" src="<?php echo plugins_url(); ?>/woocommerce-abandon-cart-pro/assets/images/loading.gif" alt="Loading...">
             </div>
+            <div id = "wcap_manual_email_data_loading_text" > Please wait while we are exporting Abandoned Cart Data to Salesforce CRM.</div>
             <?php
             /*
                 When we use the bulk action it will allot the action and mode.
