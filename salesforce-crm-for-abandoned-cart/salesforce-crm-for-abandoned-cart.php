@@ -778,7 +778,7 @@ if ( ! class_exists( 'Wcap_Salesforce_CRM' ) ) {
                 $wpdb->query( $wcap_insert_abandoned_id );
             }
 
-            echo $abandoned_order_count . ',' . $wcap_posted_result ;
+            echo $abandoned_order_count ;
             wp_die();
         }
 

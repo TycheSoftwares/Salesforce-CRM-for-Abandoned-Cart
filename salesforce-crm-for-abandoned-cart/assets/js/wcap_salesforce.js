@@ -84,6 +84,7 @@ jQuery(function( $ ) {
 	$ ( '.add_single_cart_salesforce' ).on( 'click', function( e ) {
 		var wcap_selected_id = [];
 		wcap_selected_id.push ( $( this ).attr( 'data-id' ) );
+		var wcap_all = '';
 		$( '#wcap_manual_email_data_loading' ).show();
 		var data = {
 			action                  : 'wcap_add_to_salesforce_crm',
@@ -103,13 +104,15 @@ jQuery(function( $ ) {
 	            	$( "#wcap_salesforce_message_error" ).fadeOut();
 	            },4000);
         	}else{
-				var abadoned_order_count = response;
+        		var res = response.split(",");
+				var abadoned_order_count = res[1];
+				
 				var order                = 'order';
 				if ( abadoned_order_count > 1 ){
 					order 				 = 'orders';
 				}
 				
-				var display_message       = abadoned_order_count  + ' Abandoned ' +  order + ' has been successfully added to Salesforce CRM.'
+				var display_message       = abadoned_order_count  + ' created Abandoned ' +  order + ' has been successfully added to Salesforce CRM.';
 				$( ".wcap_salesforce_message_p" ).html( display_message );
 	            $( "#wcap_salesforce_message" ).fadeIn();
 	            setTimeout( function(){
@@ -135,19 +138,21 @@ jQuery(function( $ ) {
 			var wcap_check_string = response.indexOf("no_record");
 			if ( wcap_check_string !== -1 ){
 				var display_message       = 'All the Abandoned carts are already exported to Salesforce CRM. No new carts found to export.';
-				$( ".wcap_salesforce_message_p" ).html( display_message );
-	            $( "#wcap_salesforce_message" ).fadeIn();
+				$( ".wcap_salesforce_message_p_error" ).html( display_message );
+	            $( "#wcap_salesforce_message_error" ).fadeIn();
 	            setTimeout( function(){
-	            	$( "#wcap_salesforce_message" ).fadeOut();
+	            	$( "#wcap_salesforce_message_error" ).fadeOut();
 	            },4000);
 			}else{
-				var abadoned_order_count = response;
+				var res = response.split(",");
+				var abadoned_order_count = res[1];
+				
 				var order                = 'order';
 				if ( abadoned_order_count > 1 ){
 					order 				 = 'orders';
 				}
 				
-				var display_message       = abadoned_order_count  + ' Abandoned ' +  order + ' has been successfully added to Salesforce CRM.'
+				var display_message       = abadoned_order_count  + ' created Abandoned ' +  order + ' has been successfully added to Salesforce CRM.';
 				$( ".wcap_salesforce_message_p" ).html( display_message );
 	            $( "#wcap_salesforce_message" ).fadeIn();
 	            setTimeout( function(){
@@ -227,13 +232,15 @@ jQuery(function( $ ) {
 		            	$( "#wcap_salesforce_message_error" ).fadeOut();
 		            },4000);
 	        	}else{
-					var abadoned_order_count = response;
+	        		var res = response.split(",");
+					var abadoned_order_count = res[1];
+					
 					var order                = 'order';
 					if ( abadoned_order_count > 1 ){
 						order 				 = 'orders';
 					}
 					
-					var display_message       = abadoned_order_count  + ' Abandoned ' +  order + ' has been successfully added to Salesforce CRM.'
+					var display_message       = abadoned_order_count  + ' created Abandoned ' +  order + ' has been successfully added to Salesforce CRM.';
 					$( ".wcap_salesforce_message_p" ).html( display_message );
 		            $( "#wcap_salesforce_message" ).fadeIn();
 		            setTimeout( function(){
@@ -314,13 +321,15 @@ jQuery(function( $ ) {
 		            	$( "#wcap_salesforce_message_error" ).fadeOut();
 		            },4000);
 	        	}else{
-					var abadoned_order_count = response;
+	        		var res = response.split(",");
+					var abadoned_order_count = res[1];
+					
 					var order                = 'order';
 					if ( abadoned_order_count > 1 ){
 						order 				 = 'orders';
 					}
 					
-					var display_message       = abadoned_order_count  + ' Abandoned ' +  order + ' has been successfully added to Salesforce CRM.'
+					var display_message       = abadoned_order_count  + ' created Abandoned ' +  order + ' has been successfully added to Salesforce CRM.';
 					$( ".wcap_salesforce_message_p" ).html( display_message );
 		            $( "#wcap_salesforce_message" ).fadeIn();
 		            setTimeout( function(){
@@ -331,4 +340,19 @@ jQuery(function( $ ) {
 			e.preventDefault();
 		}
 	});
+
+	var wcap_user_type_selected = $( 'input[type=radio][name=wcap_salesforce_user_type]:checked' ).val();
+	if( wcap_user_type_selected == 'contact' ) {
+		$( ".wcap_salesforce_lead_company" ).hide();
+            $( ".wcap_salesforce_lead_company" ).closest("tr").hide();
+	}
+	$( 'input[type=radio][name=wcap_salesforce_user_type]' ).change(function() {
+        if ( this.value == 'lead' ) {
+        	$( ".wcap_salesforce_lead_company" ).closest("tr").fadeIn();
+            $( ".wcap_salesforce_lead_company" ).fadeIn();
+        } else if ( this.value == 'contact' ) {
+        	$( ".wcap_salesforce_lead_company" ).fadeOut();
+            $( ".wcap_salesforce_lead_company" ).closest("tr").fadeOut();
+        }
+    });
 });
