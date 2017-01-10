@@ -107,8 +107,8 @@ jQuery(function( $ ) {
 	            },4000);
         	}else{
         		var res = response.split(",");
-				var abadoned_order_count = res[1];
-				
+				var abadoned_order_count = res[0];
+
 				var order                = 'order';
 				if ( abadoned_order_count > 1 ){
 					order 				 = 'orders';
@@ -125,7 +125,6 @@ jQuery(function( $ ) {
 	});
 
 	$ ( '#add_all_carts_salesforce' ).on( 'click', function( e ) {		
-
 
 		wcap_all = 'yes';
 		var wcap_selected_id = [];
@@ -152,7 +151,7 @@ jQuery(function( $ ) {
 	            },4000);
 			}else{
 				var res = response.split(",");
-				var abadoned_order_count = res[1];
+				var abadoned_order_count = res[0];
 				
 				var order                = 'order';
 				if ( abadoned_order_count > 1 ){
@@ -240,7 +239,7 @@ jQuery(function( $ ) {
 		            },4000);
 	        	}else{
 	        		var res = response.split(",");
-					var abadoned_order_count = res[1];
+					var abadoned_order_count = res[0];
 					
 					var order                = 'order';
 					if ( abadoned_order_count > 1 ){
@@ -331,7 +330,7 @@ jQuery(function( $ ) {
 		            },4000);
 	        	}else{
 	        		var res = response.split(",");
-					var abadoned_order_count = res[1];
+					var abadoned_order_count = res[0];
 					
 					var order                = 'order';
 					if ( abadoned_order_count > 1 ){
