@@ -543,7 +543,7 @@ if ( ! class_exists( 'Wcap_Salesforce_CRM' ) ) {
             // Next, we update the name attribute to access this element's ID in the context of the display options array
             // We also access the show_header element of the options collection in the call to the checked() helper function
             printf(
-                '<input type="text" class = "wcap_salesforce_lead_company" id="wcap_salesforce_lead_company" name="wcap_salesforce_lead_company" value="%s" style = "display:%s" />',
+                '<input type="text" placeholder = "Abandoned Cart Plugin" class = "wcap_salesforce_lead_company" id="wcap_salesforce_lead_company" name="wcap_salesforce_lead_company" value="%s" style = "display:%s" />',
                 isset( $wcap_salesforce_lead_company ) ? esc_attr( $wcap_salesforce_lead_company ) : '',
                 $display
             );
