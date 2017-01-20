@@ -610,10 +610,20 @@ if ( ! class_exists( 'Wcap_Salesforce_CRM' ) ) {
             } else {
                 $ids = $_POST ['wcap_abandoned_cart_ids'];
 
-                $wcap_check_duplicate_record = $wpdb->get_var ( "SELECT abandoned_cart_id FROM `".$wpdb->prefix."wcap_salesforce_abandoned_cart` WHERE `abandoned_cart_id` = $ids[0]" ); 
-                if ( $wcap_check_duplicate_record > 0 ){
-                    echo 'duplicate_record';
-                    wp_die();
+                $abandoned_order_count  = count ( $ids );
+                if ( $abandoned_order_count > 1 ){
+                    foreach ( $ids as $id_key => $id_value ) {
+                        $wcap_check_duplicate_record = $wpdb->get_var( "SELECT `abandoned_cart_id` FROM `".$wpdb->prefix."wcap_salesforce_abandoned_cart` WHERE `abandoned_cart_id` = $id_value" ); 
+                        if ( $wcap_check_duplicate_record > 0 ){
+                            unset ( $ids[$id_key] );                            
+                        }
+                    }
+                }else{
+                    $wcap_check_duplicate_record = $wpdb->get_var ( "SELECT `abandoned_cart_id` FROM `".$wpdb->prefix."wcap_salesforce_abandoned_cart` WHERE `abandoned_cart_id` = $ids[0]" ); 
+                    if ( $wcap_check_duplicate_record > 0 ){
+                        echo 'duplicate_record';
+                        wp_die();
+                    }
                 }
             }
             
