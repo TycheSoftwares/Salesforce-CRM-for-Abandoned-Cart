@@ -47,12 +47,12 @@ class Wcap_Add_To_Salesforce_CRM
           try {
             $old_data = ob_get_clean();
             $createResponse = $mySforceConnection->create( array ( $sObject1 ) );
-            echo $type . '_created , ';
+            //echo $type . '_created , ';
 
           } catch ( SoapFault $fault ) {
             $old_data = ob_get_clean();
             //echo ( $fault->faultstring );
-            echo $type . '_created_error , ';
+            //echo $type . '_created_error , ';
           }
         }
 
@@ -78,10 +78,10 @@ class Wcap_Add_To_Salesforce_CRM
           try {
             $createResponse = $mySforceConnection->create( array ( $sObject1 ) );
             $old_data = ob_get_clean();
-            echo 'notes , ';
+            //echo 'notes , ';
           } catch (SoapFault $fault) {
             $old_data = ob_get_clean();
-            echo 'notes_error , ';
+            //echo 'notes_error , ';
           }
         }
 
@@ -105,11 +105,11 @@ class Wcap_Add_To_Salesforce_CRM
         
             $createResponse = $mySforceConnection->create( array ( $sObject1 ) );
             $old_data = ob_get_clean();
-            echo 'notes , ';
+            //echo 'notes , ';
         
           } catch (SoapFault $fault) {
             $old_data = ob_get_clean();
-            echo 'notes_error , ';
+            //echo 'notes_error , ';
           }
         }
   }
