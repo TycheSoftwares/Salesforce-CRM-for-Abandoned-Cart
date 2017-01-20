@@ -654,9 +654,9 @@ if ( ! class_exists( 'Wcap_Salesforce_CRM' ) ) {
                         $results_guest       = $wpdb->get_results( $wpdb->prepare( $query_guest, $wcap_user_id ) );                        
                         if ( count ($results_guest) > 0 ) {
                             $wcap_contact_email   = $results_guest[0]->email_id;
-                            $wcap_user_first_name = $results_guest[0]->billing_first_name;
-                            $wcap_user_last_name  = $results_guest[0]->billing_last_name;
-                            $wcap_user_phone      = $results_guest[0]->phone;
+                            $wcap_user_first_name = $results_guest[0]->billing_first_name != '' ? $results_guest[0]->billing_first_name : 'First Name' ; 
+                            $wcap_user_last_name  = $results_guest[0]->billing_last_name  != '' ? $results_guest[0]->billing_last_name  : 'Last Name';
+                            $wcap_user_phone      = $results_guest[0]->phone              != '' ? $results_guest[0]->phone              : '123456789';
                         }       
                     } else {                                          
                         $wcap_contact_email = get_user_meta( $wcap_user_id, 'billing_email', true );                            
