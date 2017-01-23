@@ -67,6 +67,7 @@ if ( ! class_exists( 'Wcap_Salesforce_CRM' ) ) {
 
         public function __construct( ) {
             register_activation_hook( __FILE__,                         array( &$this, 'wcap_salesforce_crm_create_table' ) );
+            add_action( 'admin_init',                                   array( &$this, 'wcap_salesforce_crm_check_compatibility' ) );
             if ( ! has_action ('wcap_add_tabs' ) ){
                 add_action ( 'wcap_add_tabs',                           array( &$this, 'wcap_salesforce_crm_add_tab' ) );
             }
@@ -93,6 +94,50 @@ if ( ! class_exists( 'Wcap_Salesforce_CRM' ) ) {
             Test Connection for saved settings
             */
             add_action ( 'wp_ajax_wcap_salesforce_check_connection',                           array( &$this, 'wcap_salesforce_check_connection_callback' ));
+        }
+
+        /**
+         * Check if Abandoned cart is active or not.
+         */
+        public static function wcap_salesforce_crm_check_ac_installed() {
+        
+            if ( class_exists( 'woocommerce_abandon_cart' ) ) {
+                return true;
+            } else {
+                return false;
+            }
+        }
+            
+        /**
+         * Ensure that the Salesforce crm addon is deactivated when Abandoned cart 
+         * is deactivated.
+         */
+        public static function wcap_salesforce_crm_check_compatibility() {
+                
+            if ( ! self::wcap_salesforce_crm_check_ac_installed() ) {
+                    
+                if ( is_plugin_active( plugin_basename( __FILE__ ) ) ) {
+                    deactivate_plugins( plugin_basename( __FILE__ ) );
+                        
+                    add_action( 'admin_notices', array( 'Wcap_Salesforce_CRM', 'wcap_salesforce_crm_disabled_notice' ) );
+                    if ( isset( $_GET['activate'] ) ) {
+                        unset( $_GET['activate'] );
+                    }
+                        
+                }
+                    
+            }
+        }
+        /**
+         * Display a notice in the admin Plugins page if the Salesforce crm addon is
+         * activated while Abandoned cart is deactivated.
+         */
+        public static function wcap_salesforce_crm_disabled_notice() {
+                
+            $class = 'notice notice-error is-dismissible';
+            $message = __( 'Salesforce CRM Addon for Abandoned Cart Pro for WooCommerce requires Abandoned Cart Pro for WooCommerce installed and activate.', 'woocommerce-ac' );
+                
+            printf( '<div class="%1$s"><p>%2$s</p></div>', $class, $message );
         }
 
         function wcap_salesforce_check_connection_callback(){
