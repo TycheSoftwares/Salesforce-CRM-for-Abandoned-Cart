@@ -1,12 +1,38 @@
 <?php
 /*
-Plugin Name: Salesforce CRM Addon for Abandoned Cart Pro for WooCommerce
+Plugin Name: Salesforce CRM Sync for WooCommerce Abandoned Cart Plugin
 Plugin URI: http://www.tychesoftwares.com/store/premium-plugins/woocommerce-abandoned-cart-pro
 Description: This plugin allows you to export the abandoned cart data to your Salesforce CRM. 
 Version: 1.0
 Author: Tyche Softwares
 Author URI: http://www.tychesoftwares.com/
 */
+
+global $SalesforceCRMpdateChecker;
+$SalesforceCRMpdateChecker = '1.0';
+
+// this is the URL our updater / license checker pings. This should be the URL of the site with EDD installed
+define( 'EDD_SL_STORE_URL_SALESFORCE_WOO', 'http://www.tychesoftwares.com/' ); // IMPORTANT: change the name of this constant to something unique to prevent conflicts with other plugins using this system
+
+// the name of your product. This is the title of your product in EDD and should match the download title in EDD exactly
+define( 'EDD_SL_ITEM_NAME_SALESFORCE_WOO', 'Salesforce CRM Sync for WooCommerce Abandoned Cart Plugin' ); // IMPORTANT: change the name of this constant to something unique to prevent conflicts with other plugins using this system
+
+if( ! class_exists( 'EDD_SALESFORCE_WOO_Plugin_Updater' ) ) {
+    // load our custom updater if it doesn't already exist
+    include( dirname( __FILE__ ) . '/plugin-updates/EDD_SALESFORCE_WOO_Plugin_Updater.php' );
+}
+
+// retrieve our license key from the DB
+$license_key = trim( get_option( 'edd_sample_license_key_salesforce_woo' ) );
+// setup the updater
+$edd_updater = new EDD_SALESFORCE_WOO_Plugin_Updater( EDD_SL_STORE_URL_SALESFORCE_WOO, __FILE__, array(
+    'version'   => '1.0',                     // current version number
+    'license'   => $license_key,                // license key (used get_option above to retrieve from DB)
+    'item_name' => EDD_SL_ITEM_NAME_SALESFORCE_WOO,     // name of this plugin
+    'author'    => 'Ashok Rane'                 // author of this plugin
+)
+);
+
 require_once ( "cron/wcap_salesforce_add_abandoned_data.php" );
 require_once ( "includes/class_add_to_salesforce_crm.php" );
 require_once ('soapclient/SforcePartnerClient.php');
@@ -94,6 +120,11 @@ if ( ! class_exists( 'Wcap_Salesforce_CRM' ) ) {
             Test Connection for saved settings
             */
             add_action ( 'wp_ajax_wcap_salesforce_check_connection',                           array( &$this, 'wcap_salesforce_check_connection_callback' ));
+            
+            /* License */
+            add_action( 'admin_init',                                                       array( &$this, 'wcap_salesforce_edd_ac_register_option' ) );
+            add_action( 'admin_init',                                                       array( &$this, 'wcap_salesforce_edd_ac_deactivate_license' ) );
+            add_action( 'admin_init',                                                       array( &$this, 'wcap_salesforce_edd_ac_activate_license' ) );
         }
 
         /**
@@ -138,6 +169,107 @@ if ( ! class_exists( 'Wcap_Salesforce_CRM' ) ) {
             $message = __( 'Salesforce CRM Addon for Abandoned Cart Pro for WooCommerce requires Abandoned Cart Pro for WooCommerce installed and activate.', 'woocommerce-ac' );
                 
             printf( '<div class="%1$s"><p>%2$s</p></div>', $class, $message );
+        }
+        
+        function wcap_salesforce_edd_ac_activate_license() {
+            // listen for our activate button to be clicked
+            if ( isset( $_POST['edd_salesforce_license_activate'] ) ) {
+                // run a quick security check
+                if ( ! check_admin_referer( 'edd_sample_nonce', 'edd_sample_nonce' ) )
+                    return; // get out if we didn't click the Activate button
+                // retrieve the license from the database
+                $license = trim( get_option( 'edd_sample_license_key_salesforce_woo' ) );
+                // data to send in our API request
+                $api_params = array(
+                    'edd_action'=> 'activate_license',
+                    'license'   => $license,
+                    'item_name' => urlencode( EDD_SL_ITEM_NAME_SALESFORCE_WOO ) // the name of our product in EDD
+                );
+                // Call the custom API.
+                $response = wp_remote_get( add_query_arg( $api_params, EDD_SL_STORE_URL_SALESFORCE_WOO), array( 'timeout' => 15, 'sslverify' => false ) );
+                // make sure the response came back okay
+                if ( is_wp_error( $response ) )
+                    return false;
+                // decode the license data
+                $license_data = json_decode( wp_remote_retrieve_body( $response ) );
+                // $license_data->license will be either "active" or "inactive"
+                update_option( 'edd_sample_license_status_salesforce_woo', $license_data->license );
+            }
+        }
+        
+        /***********************************************
+         * Illustrates how to deactivate a license key.
+         * This will descrease the site count
+         ***********************************************/
+        function wcap_salesforce_edd_ac_deactivate_license() {
+            // listen for our activate button to be clicked
+            if ( isset( $_POST['edd_salesforce_license_deactivate'] ) ) {
+                // run a quick security check
+                if ( ! check_admin_referer( 'edd_sample_nonce', 'edd_sample_nonce' ) )
+                    return; // get out if we didn't click the Activate button
+                // retrieve the license from the database
+                $license = trim( get_option( 'edd_sample_license_key_salesforce_woo' ) );
+                // data to send in our API request
+                $api_params = array(
+                    'edd_action'=> 'deactivate_license',
+                    'license'   => $license,
+                    'item_name' => urlencode( EDD_SL_ITEM_NAME_SALESFORCE_WOO ) // the name of our product in EDD
+                );
+                // Call the custom API.
+                $response = wp_remote_get( add_query_arg( $api_params, EDD_SL_STORE_URL_SALESFORCE_WOO), array( 'timeout' => 15, 'sslverify' => false ) );
+                // make sure the response came back okay
+                if ( is_wp_error( $response ) )
+                    return false;
+                // decode the license data
+                $license_data = json_decode( wp_remote_retrieve_body( $response ) );
+                // $license_data->license will be either "deactivated" or "failed"
+                if ( $license_data->license == 'deactivated' )
+                    delete_option( 'edd_sample_license_status_salesforce_woo' );
+            }
+        }
+        
+        /************************************
+         * this illustrates how to check if
+         * a license key is still valid
+         * the updater does this for you,
+         * so this is only needed if you
+         * want to do something custom
+         *************************************/
+        function edd_sample_check_license() {
+            global $wp_version;
+            $license = trim( get_option( 'edd_sample_license_key_salesforce_woo' ) );
+            $api_params = array(
+                'edd_action' => 'check_license',
+                'license'    => $license,
+                'item_name'  => urlencode( EDD_SL_ITEM_NAME_SALESFORCE_WOO )
+            );
+            // Call the custom API.
+            $response = wp_remote_get( add_query_arg( $api_params, EDD_SL_STORE_URL_SALESFORCE_WOO), array( 'timeout' => 15, 'sslverify' => false ) );
+            if ( is_wp_error( $response ) )
+                return false;
+            $license_data = json_decode( wp_remote_retrieve_body( $response ) );
+            if ( $license_data->license == 'valid' ) {
+                echo 'valid';
+                exit;
+                // this license is still valid
+            } else {
+                echo 'invalid';
+                exit;
+                // this license is no longer valid
+            }
+        }
+        
+        function wcap_salesforce_edd_ac_register_option() {
+            // creates our settings in the options table
+            register_setting( 'edd_sample_license', 'edd_sample_license_key_salesforce_woo', array( &$this, 'wcap_salesforce_edd_sanitize_license' ) );
+        }
+         
+        function wcap_salesforce_edd_sanitize_license( $new ) {
+            $old = get_option( 'edd_sample_license_key_salesforce_woo' );
+            if ( $old && $old != $new ) {
+                delete_option( 'edd_sample_license_key_salesforce_woo' ); // new license has been entered, so must reactivate
+            }
+            return $new;
         }
 
         function wcap_salesforce_check_connection_callback(){
@@ -336,6 +468,34 @@ if ( ! class_exists( 'Wcap_Salesforce_CRM' ) ) {
                'wcap_salesforce_crm_section',
                'wcap_salesforce_crm_general_settings_section'
             );
+            
+            /******************************************/
+            
+            //Setting section and field for license options
+            add_settings_section(
+            'salesforce_general_license_key_section',
+            __( 'Plugin License Options', 'woocommerce-ac' ),
+            array( $this, 'wcap_salesforce_general_license_key_section_callback' ),
+            'wcap_salesforce_crm_section'
+                );
+            
+            add_settings_field(
+            'edd_sample_license_key_salesforce_woo',
+            __( 'License Key', 'woocommerce-ac' ),
+            array( $this, 'wcap_edd_sample_license_key_salesforce_woo_callback' ),
+            'wcap_salesforce_crm_section',
+            'salesforce_general_license_key_section',
+            array( __( 'Enter your license key.', 'woocommerce-ac' ) )
+            );
+             
+            add_settings_field(
+            'activate_license_key_ac_woo',
+            __( 'Activate License', 'woocommerce-ac' ),
+            array( $this, 'wcap_activate_license_key_salesforce_woo_callback' ),
+            'wcap_salesforce_crm_section',
+            'salesforce_general_license_key_section',
+            array( __( 'Enter your license key.', 'woocommerce-ac' ) )
+            );
                         
             // Finally, we register the fields with WordPress
             register_setting(
@@ -373,6 +533,11 @@ if ( ! class_exists( 'Wcap_Salesforce_CRM' ) ) {
             register_setting(
                 'wcap_salesforce_crm_setting',
                 'wcap_salesforce_lead_company'
+            );
+            
+            register_setting(
+                'wcap_salesforce_crm_setting',
+                'edd_sample_license_key_salesforce_woo'
             );
         }
 
@@ -595,6 +760,52 @@ if ( ! class_exists( 'Wcap_Salesforce_CRM' ) ) {
             // Here, we'll take the first argument of the array and add it to a label next to the checkbox
             $html = '<label class = "wcap_salesforce_lead_company" for="wcap_salesforce_lead_company_label" style= "display:'.$display.'"> '  . $args[0] . '</label>' ;
             echo $html;
+        }
+        
+        /***************************************************************
+         * WP Settings API callback for License plugin option
+         **************************************************************/
+        function wcap_salesforce_general_license_key_section_callback(){
+        
+        }
+        
+        /***************************************************************
+         * WP Settings API callback for License key
+         **************************************************************/
+        function wcap_edd_sample_license_key_salesforce_woo_callback( $args ){
+            $edd_sample_license_key_ac_woo_field = get_option( 'edd_sample_license_key_salesforce_woo' );
+            printf(
+            '<input type="text" id="edd_sample_license_key_salesforce_woo" name="edd_sample_license_key_salesforce_woo" class="regular-text" value="%s" />',
+            isset( $edd_sample_license_key_ac_woo_field ) ? esc_attr( $edd_sample_license_key_ac_woo_field ) : ''
+                );
+                // Here, we'll take the first argument of the array and add it to a label next to the checkbox
+                $html = '<label for="edd_sample_license_key_salesforce_woo"> '  . $args[0] . '</label>';
+                echo $html;
+        }
+        /***************************************************************
+         * WP Settings API callback for to Activate License key
+         **************************************************************/
+        function wcap_activate_license_key_salesforce_woo_callback() {
+        
+            $license = get_option( 'edd_sample_license_key_salesforce_woo' );
+            $status  = get_option( 'edd_sample_license_status_salesforce_woo' );
+            ?>
+            <form method="post" action="options.php">
+            <?php if ( false !== $license ) { ?>
+                <?php if( $status !== false && $status == 'valid' ) { ?>
+                    <span style="color:green;"><?php _e( 'active' ); ?></span>
+                    <?php wp_nonce_field( 'edd_sample_nonce' , 'edd_sample_nonce' ); ?>
+                    <input type="submit" class="button-secondary" name="edd_salesforce_license_deactivate" value="<?php _e( 'Deactivate License' ); ?>"/>
+                 <?php } else {
+                      
+                        wp_nonce_field( 'edd_sample_nonce', 'edd_sample_nonce' ); ?>
+                        <input type="submit" class="button-secondary" name="edd_salesforce_license_activate" value="Activate License"/>
+                    <?php } ?>
+            <?php } ?>
+            
+            
+            </form>
+            <?php 
         }
 
         public static function wcap_salesforce_test_connection_callback() {
