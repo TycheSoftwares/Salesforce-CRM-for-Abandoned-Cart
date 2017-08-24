@@ -624,7 +624,7 @@ if ( ! class_exists( 'Wcap_Salesforce_CRM' ) ) {
                     }
                 ?>
                 </select>
-            <?
+            <?php
             $html = '<label for="wcap_add_automatically_add_after_time_lable"> '  . $args[0] . '</label>';
             echo $html;
         }
