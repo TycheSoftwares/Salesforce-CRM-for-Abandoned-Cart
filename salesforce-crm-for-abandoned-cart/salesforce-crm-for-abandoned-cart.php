@@ -693,7 +693,7 @@ if ( ! class_exists( 'Wcap_Salesforce_CRM' ) ) {
             // Next, we update the name attribute to access this element's ID in the context of the display options array
             // We also access the show_header element of the options collection in the call to the checked() helper function
             printf(
-                '<input type="text" id="wcap_salesforce_password" name="wcap_salesforce_password" value="%s" />',
+                '<input type="password" id="wcap_salesforce_password" name="wcap_salesforce_password" value="%s" />',
                 isset( $wcap_salesforce_password ) ? esc_attr( $wcap_salesforce_password ) : ''
             );            
             // Here, we'll take the first argument of the array and add it to a label next to the checkbox
