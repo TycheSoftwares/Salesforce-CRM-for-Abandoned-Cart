@@ -7,9 +7,9 @@ class Wcap_Add_To_Salesforce_CRM
     public static function wcap_add_data_to_salesforce_crm ( $data, $wcap_sf_username, $wcap_sf_password, $wcap_sf_security_token, $wcap_sf_user_type, $wcap_product_details ) {
 
         $mySforceConnection = new SforcePartnerClient();
-        $wcap_plguins_url   = plugins_url() . '/salesforce-crm-for-abandoned-cart';
+        $wcap_plguins_url   = SCAC_PLUGIN_PATH;
       
-        $mySoapClient       = $mySforceConnection->createConnection( $wcap_plguins_url .'/soapclient/partner.wsdl.xml');
+        $mySoapClient       = $mySforceConnection->createConnection( $wcap_plguins_url .'soapclient/partner.wsdl.xml');
         
         $wacp_pswd_token    = $wcap_sf_password . $wcap_sf_security_token;
         $mylogin            = $mySforceConnection->login( $wcap_sf_username, $wacp_pswd_token );
@@ -31,17 +31,17 @@ class Wcap_Add_To_Salesforce_CRM
         $wcap_user_email = str_replace( "+", "\+", $data['email']);
         $search_result = '';
         $searchResult  = array();
+        $wcap_all_data = array();
 
         try {
           $old_data = ob_get_clean();
           $search = 'FIND {'.$wcap_user_email.'} IN EMAIL FIELDS '.
                     "RETURNING $type(ID, OWNERID) ";
           $searchResult = $mySforceConnection->search($search);
+          $wcap_all_data = $searchResult->searchRecords;
         } catch (Exception $e) {
           $old_data = ob_get_clean();
         }
-            
-        $wcap_all_data = $searchResult->searchRecords;
 
         if ( count( $wcap_all_data ) == 0 ){
           try {

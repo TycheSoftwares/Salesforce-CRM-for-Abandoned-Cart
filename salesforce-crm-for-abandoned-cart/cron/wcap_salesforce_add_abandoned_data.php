@@ -170,68 +170,76 @@ class Wcap_Salesforce_CRM_Add_Cron_Data {
               
             );
 
-            $cart_info_db_field = json_decode( $abandoned_cart_results[0]->abandoned_cart_info );
+            $cart_info_db_field = json_decode( stripslashes( $abandoned_cart_results[0]->abandoned_cart_info ) );
             if( !empty( $cart_info_db_field ) ) {
                 $cart_details           = $cart_info_db_field->cart;
-            }
-            $product_name = '';
-            $wcap_product_details = '';
-            foreach( $cart_details as $cart_details_key => $cart_details_value ) {
-                $quantity_total = $cart_details_value->quantity;
-                $product_id     = $cart_details_value->product_id;
-                $prod_name      = get_post( $product_id );
-                $product_name   = $prod_name->post_title;
-                if( isset( $cart_details_value->variation_id ) && '' != $cart_details_value->variation_id ){
-                    $variation_id               = $cart_details_value->variation_id;
-                    $variation                  = wc_get_product( $variation_id );
-                    $name                       = $variation->get_formatted_name() ;
-                    $explode_all                = explode( "&ndash;", $name );
-                    $pro_name_variation         = array_slice( $explode_all, 1, -1 );
-                    $product_name_with_variable = '';
-                    $explode_many_varaition     = array();
-                
-                    foreach ( $pro_name_variation as $pro_name_variation_key => $pro_name_variation_value ){
-                        $explode_many_varaition = explode ( ",", $pro_name_variation_value );
-                        if ( !empty( $explode_many_varaition ) ) {
-                            foreach( $explode_many_varaition as $explode_many_varaition_key => $explode_many_varaition_value ){
+
+                $product_name = '';
+                $wcap_product_details = '';
+                foreach( $cart_details as $cart_details_key => $cart_details_value ) {
+                    $quantity_total = $cart_details_value->quantity;
+                    $product_id     = $cart_details_value->product_id;
+                    $prod_name      = get_post( $product_id );
+                    $product_name   = $prod_name->post_title;
+                    if( isset( $cart_details_value->variation_id ) && '' != $cart_details_value->variation_id ){
+                        $variation_id               = $cart_details_value->variation_id;
+                        $variation                  = wc_get_product( $variation_id );
+                        $name                       = $variation->get_formatted_name() ;
+                        $explode_all                = explode( "&ndash;", $name );
+                        $pro_name_variation         = array_slice( $explode_all, 1, -1 );
+                        $product_name_with_variable = '';
+                        $explode_many_varaition     = array();
+                    
+                        foreach ( $pro_name_variation as $pro_name_variation_key => $pro_name_variation_value ){
+                            $explode_many_varaition = explode ( ",", $pro_name_variation_value );
+                            if ( !empty( $explode_many_varaition ) ) {
+                                foreach( $explode_many_varaition as $explode_many_varaition_key => $explode_many_varaition_value ){
+                                    $product_name_with_variable = $product_name_with_variable . "\n". html_entity_decode ( $explode_many_varaition_value );
+                                }
+                            } else {
                                 $product_name_with_variable = $product_name_with_variable . "\n". html_entity_decode ( $explode_many_varaition_value );
                             }
-                        } else {
-                            $product_name_with_variable = $product_name_with_variable . "\n". html_entity_decode ( $explode_many_varaition_value );
                         }
+                        $product_name = $product_name_with_variable;
                     }
-                    $product_name = $product_name_with_variable;
+                   $wcap_product_details .= html_entity_decode ( "Product Name: " . $product_name . " , Quantity: " . $quantity_total ) . "\n";
                 }
-               $wcap_product_details .= html_entity_decode ( "Product Name: " . $product_name . " , Quantity: " . $quantity_total ) . "\n";
+                $wcap_contact = array();
+                if ( 'lead' == $wcap_sf_user_type ){                        
+                    $wcap_contact = array(
+                        "firstname"   => $wcap_user_first_name,
+                        "lastname"    => $wcap_user_last_name,
+                        "email"       => $wcap_contact_email,
+                        "phone"       => $wcap_user_phone,
+                        "street"      => $wcap_user_address,
+                        "city"        => $wcap_user_city,
+                        "state"       => $wcap_user_state,
+                        "country"     => $wcap_user_country,
+                        "company"     => $wcap_lead_company,
+                        "description" => $wcap_product_details
+                    );
+                } else if ( 'contact' == $wcap_sf_user_type ){                        
+                    $wcap_contact = array(
+                        "firstname" => $wcap_user_first_name,
+                        "lastname"  => $wcap_user_last_name,
+                        "email"     => $wcap_contact_email,
+                        "phone"     => $wcap_user_phone
+                    );
+                }
+                
+                $wcap_posted_result = Wcap_Add_To_Salesforce_CRM::wcap_add_data_to_salesforce_crm ( $wcap_contact, $wcap_sf_username, $wcap_sf_password, $wcap_sf_security_token, $wcap_sf_user_type, $wcap_product_details );
             }
-            $wcap_contact = array();
-            if ( 'lead' == $wcap_sf_user_type ){                        
-                $wcap_contact = array(
-                    "firstname"   => $wcap_user_first_name,
-                    "lastname"    => $wcap_user_last_name,
-                    "email"       => $wcap_contact_email,
-                    "phone"       => $wcap_user_phone,
-                    "street"      => $wcap_user_address,
-                    "city"        => $wcap_user_city,
-                    "state"       => $wcap_user_state,
-                    "country"     => $wcap_user_country,
-                    "company"     => $wcap_lead_company,
-                    "description" => $wcap_product_details
-                );
-            } else if ( 'contact' == $wcap_sf_user_type ){                        
-                $wcap_contact = array(
-                    "firstname" => $wcap_user_first_name,
-                    "lastname"  => $wcap_user_last_name,
-                    "email"     => $wcap_contact_email,
-                    "phone"     => $wcap_user_phone
-                );
-            }
-            
-            $wcap_posted_result = Wcap_Add_To_Salesforce_CRM::wcap_add_data_to_salesforce_crm ( $wcap_contact, $wcap_sf_username, $wcap_sf_password, $wcap_sf_security_token, $wcap_sf_user_type, $wcap_product_details );
             
         }                
-        $wcap_insert_abandoned_id = "INSERT INTO `" . $wpdb->prefix . "wcap_salesforce_abandoned_cart` ( abandoned_cart_id, date_time )
-                                  VALUES ( '" . $id . "', '" . current_time( 'mysql' ) . "' )";      
+        $wcap_insert_abandoned_id = "
+            INSERT INTO `" . $wpdb->prefix . "wcap_salesforce_abandoned_cart` ( 
+                abandoned_cart_id, 
+                date_time 
+            )
+            VALUES ( 
+                '" . $abandoned_cart_ids_key . "', 
+                '" . current_time( 'mysql' ) . "' 
+            )";      
         $wpdb->query( $wcap_insert_abandoned_id );
     }
    
