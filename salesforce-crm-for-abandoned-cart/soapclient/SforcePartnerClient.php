@@ -42,9 +42,8 @@ require_once ('SforceBaseClient.php');
  // string content into the parsed output and loses the tag name. Removing the
  // xsi:type forces PHP SOAP to just leave the tags intact
  class SforceSoapClient extends SoapClient {
-
-    public function __doRequest($request, $location, $action, $version, $one_way = 0) {
-     $response = parent::__doRequest($request, $location, $action, $version);
+   function __doRequest($request, $location, $action, $version, $one_way=0) {
+     $response = parent::__doRequest($request, $location, $action, $version, $one_way);
 
      // Quick check to only parse the XML here if we think we need to
      if (strpos($response, '<sf:OldValue') === false && strpos($response, '<sf:NewValue') === false) {
@@ -75,7 +74,7 @@ require_once ('SforceBaseClient.php');
 class SforcePartnerClient extends SforceBaseClient {
   const PARTNER_NAMESPACE = 'urn:partner.soap.sforce.com';
 	
-  function __construct() {
+  public function __construct() {
     $this->namespace = self::PARTNER_NAMESPACE;
   }
   
@@ -90,10 +89,8 @@ class SforcePartnerClient extends SforceBaseClient {
    * @return SaveResult
    */
   public function create($sObjects) {
-
     $arg = new stdClass;
     foreach ($sObjects as $sObject) {
-      
       if (isset ($sObject->fields)) {
         $sObject->any = $this->_convertToAny($sObject->fields);
       }
