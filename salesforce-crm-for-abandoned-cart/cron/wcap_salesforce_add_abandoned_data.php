@@ -76,7 +76,6 @@ class Wcap_Salesforce_CRM_Add_Cron_Data {
         $wcap_sf_password       = get_option ( 'wcap_salesforce_password' );
         $wcap_sf_security_token = get_option ( 'wcap_salesforce_security_token' );
         $wcap_sf_user_type      = get_option ( 'wcap_salesforce_user_type' );
-        $wcap_lead_company      = get_option ( 'wcap_salesforce_lead_company' ) == '' ? 'Abandoned Cart Plugin ' : get_option ( 'wcap_salesforce_lead_company' );
         
         $get_abandoned_cart     = "SELECT * FROM `".$wpdb->prefix."ac_abandoned_cart_history` WHERE id = $abandoned_cart_ids_key";
         $abandoned_cart_results = $wpdb->get_results( $get_abandoned_cart );
@@ -102,6 +101,7 @@ class Wcap_Salesforce_CRM_Add_Cron_Data {
                     $wcap_user_first_name = $results_guest[0]->billing_first_name;
                     $wcap_user_last_name  = $results_guest[0]->billing_last_name;
                     $wcap_user_phone      = $results_guest[0]->phone;
+                    $wcap_company         = $results_guest[0]->billing_company_name;
                 }       
             } else {                                          
                 $wcap_contact_email = get_user_meta( $wcap_user_id, 'billing_email', true );                            
@@ -164,6 +164,9 @@ class Wcap_Salesforce_CRM_Add_Cron_Data {
                     $user_billing_state = $user_billing_state_temp[0];
                     $wcap_user_state = $woocommerce->countries->states[ $user_billing_country_temp[0] ][ $user_billing_state ];
                 }
+
+                $user_billing_company_temp = get_user_meta( $wcap_user_id, 'billing_company' );
+                $wcap_company = isset( $user_billing_company_temp[0] ) ? $user_billing_company_temp[0] : '';
             }
 
             $address = array(
@@ -203,6 +206,10 @@ class Wcap_Salesforce_CRM_Add_Cron_Data {
                         $product_name = $product_name_with_variable;
                     }
                    $wcap_product_details .= html_entity_decode ( "Product Name: " . $product_name . " , Quantity: " . $quantity_total ) . "\n";
+                }
+                $wcap_lead_company = isset( $wcap_company ) && '' !== $wcap_company ? $wcap_company : '';
+                if ( '' === $wcap_lead_company ) {
+                    $wcap_lead_company = get_option ( 'wcap_salesforce_lead_company' ) == '' ? 'Abandoned Cart Plugin ' : get_option ( 'wcap_salesforce_lead_company' );
                 }
                 $wcap_contact = array();
                 if ( 'lead' == $wcap_sf_user_type ){                        

@@ -111,6 +111,9 @@ if ( ! class_exists( 'Wcap_Salesforce_CRM' ) ) {
             add_action ( 'admin_enqueue_scripts',                             array( &$this, 'wcap_salesforce_enqueue_scripts_js' ) );
             add_action ( 'admin_enqueue_scripts',                             array( &$this, 'wcap_salesforce_enqueue_scripts_css' ) );
             add_action ( 'wcap_salesforce_add_abandoned_data_schedule',       array( 'Wcap_Salesforce_CRM_Add_Cron_Data', 'wcap_add_salesforce_abandoned_cart_data' ),11 );
+
+            add_action( 'woocommerce_after_checkout_billing_form', array( &$this, 'wcap_salesforce_enqueue_js_frontend' ) ) ;
+            add_action( 'wp_ajax_nopriv_wcap_salesforce_capture_company', array( &$this, 'wcap_salesforce_capture_company' ) );
             /*
              * When cron job time changed this function will be called.
              * It is used to reset the cron time again.
@@ -334,6 +337,65 @@ if ( ! class_exists( 'Wcap_Salesforce_CRM' ) ) {
             return array_merge( $action_links, $links );
         }
 
+        /**
+         * Update the Billing Company in the Guest table once the user enters the details at Checkout.
+         *
+         * @since 1.1
+         */
+        public static function wcap_salesforce_capture_company() {
+
+            $abandoned_id = isset( $_POST['wcap_abandoned_id'] ) && $_POST['wcap_abandoned_id'] > 0 ? sanitize_text_field( $_POST['wcap_abandoned_id'] ) : 0;
+
+            if ( 0 === $abandoned_id ) { // Get the abandoned ID from the WC session.
+                $abandoned_id = wcap_get_cart_session('wcap_abandoned_id');
+            }
+
+            if ( $abandoned_id > 0 ) { // Update the record if abandoned ID > 0 i.e. we have a cart record.
+                global $wpdb;
+
+                $user_id = $wpdb->get_var(
+                    $wpdb->prepare(
+                        'SELECT user_id FROM ' . $wpdb->prefix . 'ac_abandoned_cart_history' . ' WHERE id = %s',
+                        $abandoned_id
+                    )
+                );
+
+                if ( $user_id >= 63000000 ) {
+                    $company_name = isset( $_POST['billing_company'] ) ? $_POST['billing_company'] : '';
+                    $wpdb->update(
+                        $wpdb->prefix . 'ac_guest_abandoned_cart_history',
+                        array(
+                            'billing_company_name' => $company_name
+                        ),
+                        array(
+                            'id' => $user_id
+                        )
+                    );
+                }
+            }
+            die();
+        }
+
+        /**
+         * Enqueue front end JS scripts.
+         *
+         * @since 1.1
+         */
+        public static function wcap_salesforce_enqueue_js_frontend() {
+
+            if ( is_checkout() && ! is_user_logged_in() ) { // Load the script at Checkout only for guests.
+
+                wp_enqueue_script( 'wcap_salesforce_guest', plugins_url() . '/salesforce-crm-for-abandoned-cart/assets/js/wcap_guest_user_capture.js' );
+				wp_localize_script(
+                    'wcap_salesforce_guest',
+                    'wcap_salesforce_guest_user_params',
+                    array(
+                        'ajax_url' => admin_url( 'admin-ajax.php' )
+                    )
+                );
+            }
+        }
+
         function wcap_salesforce_enqueue_scripts_js( $hook ) {
             if ( $hook != 'woocommerce_page_woocommerce_ac_page' ) {
                 return;
@@ -460,7 +522,7 @@ if ( ! class_exists( 'Wcap_Salesforce_CRM' ) ) {
                 array( $this, 'wcap_salesforce_lead_company_callback' ),
                 'wcap_salesforce_crm_section',
                 'wcap_salesforce_crm_general_settings_section',
-                array( __( 'Please set the Company name for lead.', 'woocommerce-ac' )  )
+                array( __( 'Please set the Company name for lead to be used if no Company name is found for the user.', 'woocommerce-ac' )  )
             );
 
             add_settings_field(
