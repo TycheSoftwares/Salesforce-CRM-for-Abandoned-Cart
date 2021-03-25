@@ -1060,22 +1060,23 @@ if ( ! class_exists( 'Wcap_Salesforce_CRM' ) ) {
                             $prod_name      = get_post( $product_id );
                             $product_name   = $prod_name->post_title;
                             if( isset( $cart_details_value->variation_id ) && '' != $cart_details_value->variation_id ){
-                                $variation_id               = $cart_details_value->variation_id;
-                                $variation                  = wc_get_product( $variation_id );
-                                $name                       = $variation->get_formatted_name() ;
-                                $explode_all                = explode( "&ndash;", $name );
-                                $pro_name_variation         = array_slice( $explode_all, 1, -1 );
-                                $product_name_with_variable = '';
-                                $explode_many_varaition     = array();
+                                $variation_id                 = $cart_details_value->variation_id;
+								$variation                    = wc_get_product( $variation_id );
+                                $wcap_get_formatted_variation = wc_get_formatted_variation( $variation, true );
+								$prod_name                    = $variation->get_title();
+								$pro_name_variation           = (array) "$prod_name $wcap_get_formatted_variation";
+
+								$product_name_with_variable = '';
+                        		$explode_many_varaition     = array();
                             
                                 foreach ( $pro_name_variation as $pro_name_variation_key => $pro_name_variation_value ){
                                     $explode_many_varaition = explode ( ",", $pro_name_variation_value );
                                     if ( !empty( $explode_many_varaition ) ) {
                                         foreach( $explode_many_varaition as $explode_many_varaition_key => $explode_many_varaition_value ){
-                                            $product_name_with_variable = $product_name_with_variable . "\n". html_entity_decode ( $explode_many_varaition_value );
+                                            $product_name_with_variable = $product_name_with_variable . " ". html_entity_decode ( $explode_many_varaition_value );
                                         }
                                     } else {
-                                        $product_name_with_variable = $product_name_with_variable . "\n". html_entity_decode ( $explode_many_varaition_value );
+                                        $product_name_with_variable = $product_name_with_variable . " ". html_entity_decode ( $explode_many_varaition_value );
                                     }
                                 }
                                 $product_name = $product_name_with_variable;
