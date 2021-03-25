@@ -76,7 +76,6 @@ class Wcap_Salesforce_CRM_Add_Cron_Data {
         $wcap_sf_password       = get_option ( 'wcap_salesforce_password' );
         $wcap_sf_security_token = get_option ( 'wcap_salesforce_security_token' );
         $wcap_sf_user_type      = get_option ( 'wcap_salesforce_user_type' );
-        $wcap_lead_company      = get_option ( 'wcap_salesforce_lead_company' ) == '' ? 'Abandoned Cart Plugin ' : get_option ( 'wcap_salesforce_lead_company' );
         
         $get_abandoned_cart     = "SELECT * FROM `".$wpdb->prefix."ac_abandoned_cart_history` WHERE id = $abandoned_cart_ids_key";
         $abandoned_cart_results = $wpdb->get_results( $get_abandoned_cart );
@@ -102,6 +101,7 @@ class Wcap_Salesforce_CRM_Add_Cron_Data {
                     $wcap_user_first_name = $results_guest[0]->billing_first_name;
                     $wcap_user_last_name  = $results_guest[0]->billing_last_name;
                     $wcap_user_phone      = $results_guest[0]->phone;
+                    $wcap_company         = $results_guest[0]->billing_company_name;
                 }       
             } else {                                          
                 $wcap_contact_email = get_user_meta( $wcap_user_id, 'billing_email', true );                            
@@ -164,6 +164,9 @@ class Wcap_Salesforce_CRM_Add_Cron_Data {
                     $user_billing_state = $user_billing_state_temp[0];
                     $wcap_user_state = $woocommerce->countries->states[ $user_billing_country_temp[0] ][ $user_billing_state ];
                 }
+
+                $user_billing_company_temp = get_user_meta( $wcap_user_id, 'billing_company' );
+                $wcap_company = isset( $user_billing_company_temp[0] ) ? $user_billing_company_temp[0] : '';
             }
 
             $address = array(
@@ -182,27 +185,31 @@ class Wcap_Salesforce_CRM_Add_Cron_Data {
                     $prod_name      = get_post( $product_id );
                     $product_name   = $prod_name->post_title;
                     if( isset( $cart_details_value->variation_id ) && '' != $cart_details_value->variation_id ){
-                        $variation_id               = $cart_details_value->variation_id;
-                        $variation                  = wc_get_product( $variation_id );
-                        $name                       = $variation->get_formatted_name() ;
-                        $explode_all                = explode( "&ndash;", $name );
-                        $pro_name_variation         = array_slice( $explode_all, 1, -1 );
-                        $product_name_with_variable = '';
-                        $explode_many_varaition     = array();
+                        $variation_id                 = $cart_details_value->variation_id;
+                        $variation                    = wc_get_product( $variation_id );
+                        $wcap_get_formatted_variation = wc_get_formatted_variation( $variation, true );
+                        $prod_name                    = $variation->get_title();
+                        $pro_name_variation           = (array) "$prod_name $wcap_get_formatted_variation";
+                        $product_name_with_variable   = '';
+                        $explode_many_varaition       = array();
                     
                         foreach ( $pro_name_variation as $pro_name_variation_key => $pro_name_variation_value ){
                             $explode_many_varaition = explode ( ",", $pro_name_variation_value );
                             if ( !empty( $explode_many_varaition ) ) {
                                 foreach( $explode_many_varaition as $explode_many_varaition_key => $explode_many_varaition_value ){
-                                    $product_name_with_variable = $product_name_with_variable . "\n". html_entity_decode ( $explode_many_varaition_value );
+                                    $product_name_with_variable = $product_name_with_variable . " ". html_entity_decode ( $explode_many_varaition_value );
                                 }
                             } else {
-                                $product_name_with_variable = $product_name_with_variable . "\n". html_entity_decode ( $explode_many_varaition_value );
+                                $product_name_with_variable = $product_name_with_variable . " ". html_entity_decode ( $explode_many_varaition_value );
                             }
                         }
                         $product_name = $product_name_with_variable;
                     }
                    $wcap_product_details .= html_entity_decode ( "Product Name: " . $product_name . " , Quantity: " . $quantity_total ) . "\n";
+                }
+                $wcap_lead_company = isset( $wcap_company ) && '' !== $wcap_company ? $wcap_company : '';
+                if ( '' === $wcap_lead_company ) {
+                    $wcap_lead_company = get_option ( 'wcap_salesforce_lead_company' ) == '' ? 'Abandoned Cart Plugin ' : get_option ( 'wcap_salesforce_lead_company' );
                 }
                 $wcap_contact = array();
                 if ( 'lead' == $wcap_sf_user_type ){                        

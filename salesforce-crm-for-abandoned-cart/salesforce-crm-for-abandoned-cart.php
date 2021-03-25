@@ -111,6 +111,9 @@ if ( ! class_exists( 'Wcap_Salesforce_CRM' ) ) {
             add_action ( 'admin_enqueue_scripts',                             array( &$this, 'wcap_salesforce_enqueue_scripts_js' ) );
             add_action ( 'admin_enqueue_scripts',                             array( &$this, 'wcap_salesforce_enqueue_scripts_css' ) );
             add_action ( 'wcap_salesforce_add_abandoned_data_schedule',       array( 'Wcap_Salesforce_CRM_Add_Cron_Data', 'wcap_add_salesforce_abandoned_cart_data' ),11 );
+
+            add_action( 'woocommerce_after_checkout_billing_form', array( &$this, 'wcap_salesforce_enqueue_js_frontend' ) ) ;
+            add_action( 'wp_ajax_nopriv_wcap_salesforce_capture_company', array( &$this, 'wcap_salesforce_capture_company' ) );
             /*
              * When cron job time changed this function will be called.
              * It is used to reset the cron time again.
@@ -334,6 +337,65 @@ if ( ! class_exists( 'Wcap_Salesforce_CRM' ) ) {
             return array_merge( $action_links, $links );
         }
 
+        /**
+         * Update the Billing Company in the Guest table once the user enters the details at Checkout.
+         *
+         * @since 1.1
+         */
+        public static function wcap_salesforce_capture_company() {
+
+            $abandoned_id = isset( $_POST['wcap_abandoned_id'] ) && $_POST['wcap_abandoned_id'] > 0 ? sanitize_text_field( $_POST['wcap_abandoned_id'] ) : 0;
+
+            if ( 0 === $abandoned_id ) { // Get the abandoned ID from the WC session.
+                $abandoned_id = wcap_get_cart_session('wcap_abandoned_id');
+            }
+
+            if ( $abandoned_id > 0 ) { // Update the record if abandoned ID > 0 i.e. we have a cart record.
+                global $wpdb;
+
+                $user_id = $wpdb->get_var(
+                    $wpdb->prepare(
+                        'SELECT user_id FROM ' . $wpdb->prefix . 'ac_abandoned_cart_history' . ' WHERE id = %s',
+                        $abandoned_id
+                    )
+                );
+
+                if ( $user_id >= 63000000 ) {
+                    $company_name = isset( $_POST['billing_company'] ) ? $_POST['billing_company'] : '';
+                    $wpdb->update(
+                        $wpdb->prefix . 'ac_guest_abandoned_cart_history',
+                        array(
+                            'billing_company_name' => $company_name
+                        ),
+                        array(
+                            'id' => $user_id
+                        )
+                    );
+                }
+            }
+            die();
+        }
+
+        /**
+         * Enqueue front end JS scripts.
+         *
+         * @since 1.1
+         */
+        public static function wcap_salesforce_enqueue_js_frontend() {
+
+            if ( is_checkout() && ! is_user_logged_in() ) { // Load the script at Checkout only for guests.
+
+                wp_enqueue_script( 'wcap_salesforce_guest', plugins_url() . '/salesforce-crm-for-abandoned-cart/assets/js/wcap_guest_user_capture.js' );
+				wp_localize_script(
+                    'wcap_salesforce_guest',
+                    'wcap_salesforce_guest_user_params',
+                    array(
+                        'ajax_url' => admin_url( 'admin-ajax.php' )
+                    )
+                );
+            }
+        }
+
         function wcap_salesforce_enqueue_scripts_js( $hook ) {
             if ( $hook != 'woocommerce_page_woocommerce_ac_page' ) {
                 return;
@@ -460,7 +522,7 @@ if ( ! class_exists( 'Wcap_Salesforce_CRM' ) ) {
                 array( $this, 'wcap_salesforce_lead_company_callback' ),
                 'wcap_salesforce_crm_section',
                 'wcap_salesforce_crm_general_settings_section',
-                array( __( 'Please set the Company name for lead.', 'woocommerce-ac' )  )
+                array( __( 'Please set the Company name for lead to be used if no Company name is found for the user.', 'woocommerce-ac' )  )
             );
 
             add_settings_field(
@@ -891,7 +953,7 @@ if ( ! class_exists( 'Wcap_Salesforce_CRM' ) ) {
             $wcap_sf_password       = get_option ( 'wcap_salesforce_password' );
             $wcap_sf_security_token = get_option ( 'wcap_salesforce_security_token' );
             $wcap_sf_user_type      = get_option ( 'wcap_salesforce_user_type' );
-            $wcap_lead_company      = get_option ( 'wcap_salesforce_lead_company' ) == '' ? 'Abandoned Cart Plugin ' : get_option ( 'wcap_salesforce_lead_company' );           
+
             foreach ( $ids as $id ) {
                 $get_abandoned_cart     = "SELECT * FROM `".$wpdb->prefix."ac_abandoned_cart_history` WHERE id = $id";
                 $abandoned_cart_results = $wpdb->get_results( $get_abandoned_cart );
@@ -908,13 +970,14 @@ if ( ! class_exists( 'Wcap_Salesforce_CRM' ) ) {
                 if ( !empty( $abandoned_cart_results ) ) {
                     $wcap_user_id = $abandoned_cart_results[0]->user_id;
                     if ( $abandoned_cart_results[0]->user_type == "GUEST" && $abandoned_cart_results[0]->user_id != '0' ) {
-                        $query_guest         = "SELECT billing_first_name, billing_last_name, email_id, phone FROM `" . $wpdb->prefix . "ac_guest_abandoned_cart_history` WHERE id = %d";
+                        $query_guest         = "SELECT billing_first_name, billing_last_name, email_id, phone, billing_company_name FROM `" . $wpdb->prefix . "ac_guest_abandoned_cart_history` WHERE id = %d";
                         $results_guest       = $wpdb->get_results( $wpdb->prepare( $query_guest, $wcap_user_id ) );                        
                         if ( count ($results_guest) > 0 ) {
                             $wcap_contact_email   = $results_guest[0]->email_id;
                             $wcap_user_first_name = $results_guest[0]->billing_first_name != '' ? $results_guest[0]->billing_first_name : 'First Name' ; 
                             $wcap_user_last_name  = $results_guest[0]->billing_last_name  != '' ? $results_guest[0]->billing_last_name  : 'Last Name';
                             $wcap_user_phone      = $results_guest[0]->phone              != '' ? $results_guest[0]->phone              : '123456789';
+                            $wcap_company         = '' !== $results_guest[0]->billing_company_name ? $results_guest[0]->billing_company_name : '';
                         }       
                     } else {                                          
                         $wcap_contact_email = get_user_meta( $wcap_user_id, 'billing_email', true );                            
@@ -977,6 +1040,8 @@ if ( ! class_exists( 'Wcap_Salesforce_CRM' ) ) {
                             $user_billing_state = $user_billing_state_temp[0];
                             $wcap_user_state = $woocommerce->countries->states[ $user_billing_country_temp[0] ][ $user_billing_state ];
                         }
+                        $user_billing_company_temp = get_user_meta( $wcap_user_id, 'billing_company' );
+                		$wcap_company = isset( $user_billing_company_temp[0] ) ? $user_billing_company_temp[0] : '';
                     }
 
                     $address = array(
@@ -995,22 +1060,23 @@ if ( ! class_exists( 'Wcap_Salesforce_CRM' ) ) {
                             $prod_name      = get_post( $product_id );
                             $product_name   = $prod_name->post_title;
                             if( isset( $cart_details_value->variation_id ) && '' != $cart_details_value->variation_id ){
-                                $variation_id               = $cart_details_value->variation_id;
-                                $variation                  = wc_get_product( $variation_id );
-                                $name                       = $variation->get_formatted_name() ;
-                                $explode_all                = explode( "&ndash;", $name );
-                                $pro_name_variation         = array_slice( $explode_all, 1, -1 );
-                                $product_name_with_variable = '';
-                                $explode_many_varaition     = array();
+                                $variation_id                 = $cart_details_value->variation_id;
+								$variation                    = wc_get_product( $variation_id );
+                                $wcap_get_formatted_variation = wc_get_formatted_variation( $variation, true );
+								$prod_name                    = $variation->get_title();
+								$pro_name_variation           = (array) "$prod_name $wcap_get_formatted_variation";
+
+								$product_name_with_variable = '';
+                        		$explode_many_varaition     = array();
                             
                                 foreach ( $pro_name_variation as $pro_name_variation_key => $pro_name_variation_value ){
                                     $explode_many_varaition = explode ( ",", $pro_name_variation_value );
                                     if ( !empty( $explode_many_varaition ) ) {
                                         foreach( $explode_many_varaition as $explode_many_varaition_key => $explode_many_varaition_value ){
-                                            $product_name_with_variable = $product_name_with_variable . "\n". html_entity_decode ( $explode_many_varaition_value );
+                                            $product_name_with_variable = $product_name_with_variable . " ". html_entity_decode ( $explode_many_varaition_value );
                                         }
                                     } else {
-                                        $product_name_with_variable = $product_name_with_variable . "\n". html_entity_decode ( $explode_many_varaition_value );
+                                        $product_name_with_variable = $product_name_with_variable . " ". html_entity_decode ( $explode_many_varaition_value );
                                     }
                                 }
                                 $product_name = $product_name_with_variable;
@@ -1018,6 +1084,10 @@ if ( ! class_exists( 'Wcap_Salesforce_CRM' ) ) {
                             $wcap_product_details .= html_entity_decode ( "Product Name: " . $product_name . " , Quantity: " . $quantity_total ) . "\n";
                         }
                         $wcap_contact = array();
+                        $wcap_lead_company = isset( $wcap_company ) && '' !== $wcap_company ? $wcap_company : '';
+						if ( '' === $wcap_lead_company ) {
+							$wcap_lead_company = get_option ( 'wcap_salesforce_lead_company' ) == '' ? 'Abandoned Cart Plugin ' : get_option ( 'wcap_salesforce_lead_company' );
+						}
                         if ( 'lead' == $wcap_sf_user_type ){                        
                             $wcap_contact = array(
                                 "firstname"  => $wcap_user_first_name,
