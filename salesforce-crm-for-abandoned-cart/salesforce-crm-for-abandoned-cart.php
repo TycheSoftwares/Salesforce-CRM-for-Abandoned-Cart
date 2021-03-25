@@ -1,15 +1,20 @@
 <?php
 /*
-Plugin Name: Salesforce CRM Sync for WooCommerce Abandoned Cart Plugin
-Plugin URI: http://www.tychesoftwares.com/store/premium-plugins/woocommerce-abandoned-cart-pro
-Description: This plugin allows you to export the abandoned cart data to your Salesforce CRM. 
-Version: 1.0
-Author: Tyche Softwares
-Author URI: http://www.tychesoftwares.com/
+* Plugin Name: Salesforce CRM Sync for WooCommerce Abandoned Cart Plugin
+* Plugin URI: http://www.tychesoftwares.com/store/premium-plugins/woocommerce-abandoned-cart-pro
+* Description: This plugin allows you to export the abandoned cart data to your Salesforce CRM. 
+* Version: 1.1
+* Author: Tyche Softwares
+* Author URI: http://www.tychesoftwares.com/
+* Text Domain: woocommerce-ac
+* Domain Path: /i18n/languages/
+* Requires PHP: 5.6
+* WC requires at least: 3.0.0
+* WC tested up to: 5.1.0
 */
 
 global $SalesforceCRMpdateChecker;
-$SalesforceCRMpdateChecker = '1.0';
+$SalesforceCRMpdateChecker = '1.1';
 
 // this is the URL our updater / license checker pings. This should be the URL of the site with EDD installed
 define( 'EDD_SL_STORE_URL_SALESFORCE_WOO', 'http://www.tychesoftwares.com/' ); // IMPORTANT: change the name of this constant to something unique to prevent conflicts with other plugins using this system
@@ -28,7 +33,7 @@ if( ! class_exists( 'EDD_SALESFORCE_WOO_Plugin_Updater' ) ) {
 $license_key = trim( get_option( 'edd_sample_license_key_salesforce_woo' ) );
 // setup the updater
 $edd_updater = new EDD_SALESFORCE_WOO_Plugin_Updater( EDD_SL_STORE_URL_SALESFORCE_WOO, __FILE__, array(
-    'version'   => '1.0',                     // current version number
+    'version'   => '1.1',                     // current version number
     'license'   => $license_key,                // license key (used get_option above to retrieve from DB)
     'item_name' => EDD_SL_ITEM_NAME_SALESFORCE_WOO,     // name of this plugin
     'author'    => 'Ashok Rane'                 // author of this plugin

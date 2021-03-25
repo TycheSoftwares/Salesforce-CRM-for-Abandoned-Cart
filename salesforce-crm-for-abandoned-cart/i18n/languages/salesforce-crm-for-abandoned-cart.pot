@@ -1,0 +1,153 @@
+# Copyright (C) 2021 Tyche Softwares
+# This file is distributed under the same license as the Salesforce CRM Sync for WooCommerce Abandoned Cart Plugin plugin.
+msgid ""
+msgstr ""
+"Project-Id-Version: Salesforce CRM Sync for WooCommerce Abandoned Cart Plugin 1.1\n"
+"Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/salesforce-crm-for-abandoned-cart\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"POT-Creation-Date: 2021-03-25T10:16:30+00:00\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"X-Generator: WP-CLI 2.4.0\n"
+"X-Domain: woocommerce-ac\n"
+
+#. Plugin Name of the plugin
+msgid "Salesforce CRM Sync for WooCommerce Abandoned Cart Plugin"
+msgstr ""
+
+#. Plugin URI of the plugin
+msgid "http://www.tychesoftwares.com/store/premium-plugins/woocommerce-abandoned-cart-pro"
+msgstr ""
+
+#. Description of the plugin
+msgid "This plugin allows you to export the abandoned cart data to your Salesforce CRM."
+msgstr ""
+
+#. Author of the plugin
+msgid "Tyche Softwares"
+msgstr ""
+
+#. Author URI of the plugin
+msgid "http://www.tychesoftwares.com/"
+msgstr ""
+
+#: salesforce-crm-for-abandoned-cart.php:179
+msgid "Salesforce CRM Addon for Abandoned Cart Pro for WooCommerce requires Abandoned Cart Pro for WooCommerce installed and activate."
+msgstr ""
+
+#: salesforce-crm-for-abandoned-cart.php:340
+msgid "View Salesforce Settings"
+msgstr ""
+
+#: salesforce-crm-for-abandoned-cart.php:340
+msgid "Settings"
+msgstr ""
+
+#: salesforce-crm-for-abandoned-cart.php:447
+msgid "Addon Settings"
+msgstr ""
+
+#: salesforce-crm-for-abandoned-cart.php:456
+msgid "Salesforce CRM Settings"
+msgstr ""
+
+#: salesforce-crm-for-abandoned-cart.php:463
+msgid "Export abandoned cart data to Salesforce CRM"
+msgstr ""
+
+#: salesforce-crm-for-abandoned-cart.php:467
+msgid "Enable to export the abandoned carts data to the Salesforce CRM."
+msgstr ""
+
+#: salesforce-crm-for-abandoned-cart.php:472
+msgid "Automatically add abandoned cart data to Salesforce CRM"
+msgstr ""
+
+#: salesforce-crm-for-abandoned-cart.php:476
+msgid "When any abandoned cart is displayed to the Abandoned Orders tab, it will be automatically exported to the Salesforce CRM."
+msgstr ""
+
+#: salesforce-crm-for-abandoned-cart.php:481
+msgid "Automatically add abandoned cart data to salesforce CRM after the set time."
+msgstr ""
+
+#: salesforce-crm-for-abandoned-cart.php:485
+msgid "When any abandoned cart is displayed to the Abandoned Orders tab, it will be automatically exported to the Salesforce CRM after set time."
+msgstr ""
+
+#: salesforce-crm-for-abandoned-cart.php:490
+msgid "Salesforce Username"
+msgstr ""
+
+#: salesforce-crm-for-abandoned-cart.php:494
+msgid "Please provide your Salesforce username."
+msgstr ""
+
+#: salesforce-crm-for-abandoned-cart.php:499
+msgid "Salesforce Password"
+msgstr ""
+
+#: salesforce-crm-for-abandoned-cart.php:503
+msgid "Please provide your Salesforce password."
+msgstr ""
+
+#: salesforce-crm-for-abandoned-cart.php:508
+msgid "Salesforce Security Token"
+msgstr ""
+
+#: salesforce-crm-for-abandoned-cart.php:512
+msgid "Please provide your Salesforce Security Token. Please, login to your salesforce account. In the Lightning Experience view, in the View Profile option, click on the Settings > My Personal Information > Reset My Security Token menu. Clicking on the Reset Security Token button, you will receive an email with your new security token."
+msgstr ""
+
+#: salesforce-crm-for-abandoned-cart.php:517
+msgid "Export abandoned cart data as"
+msgstr ""
+
+#: salesforce-crm-for-abandoned-cart.php:521
+msgid "Please select in which type the abandoned cart data should be exported to Salesforce CRM. <br/> Note: The product details in the abandoned cart data will be exported in a note when exported as a Contact. When exporting as a Lead, the product detail in the abandoned cart will be exported in the Lead's Detail Description along with the Customer's personal information."
+msgstr ""
+
+#: salesforce-crm-for-abandoned-cart.php:526
+msgid "Company name of lead"
+msgstr ""
+
+#: salesforce-crm-for-abandoned-cart.php:530
+msgid "Please set the Company name for lead to be used if no Company name is found for the user."
+msgstr ""
+
+#: salesforce-crm-for-abandoned-cart.php:546
+msgid "Plugin License Options"
+msgstr ""
+
+#: salesforce-crm-for-abandoned-cart.php:553
+msgid "License Key"
+msgstr ""
+
+#: salesforce-crm-for-abandoned-cart.php:557
+#: salesforce-crm-for-abandoned-cart.php:566
+msgid "Enter your license key."
+msgstr ""
+
+#: salesforce-crm-for-abandoned-cart.php:562
+msgid "Activate License"
+msgstr ""
+
+#: salesforce-crm-for-abandoned-cart.php:882
+msgid "Test Connection"
+msgstr ""
+
+#: salesforce-crm-for-abandoned-cart.php:909
+msgid "Change settings for exporting the abandoned cart data to the Salesforce CRM."
+msgstr ""
+
+#: salesforce-crm-for-abandoned-cart.php:1135
+msgid "Export to Salesforce CRM"
+msgstr ""
+
+#: salesforce-crm-for-abandoned-cart.php:1148
+#: salesforce-crm-for-abandoned-cart.php:1161
+msgid "Add to Salesforce CRM"
+msgstr ""
