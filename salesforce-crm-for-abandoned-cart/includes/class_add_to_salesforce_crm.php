@@ -56,7 +56,7 @@ class Wcap_Add_To_Salesforce_CRM
           }
         }
 
-        if ( isset( $createResponse[0] ) && count( $createResponse[0] ) > 0 && 'contact' == $wcap_sf_user_type ){
+        if ( isset( $createResponse[0] ) && count( get_object_vars( $createResponse[0] ) ) > 0 && 'contact' == $wcap_sf_user_type ){
 
           $all_data     = $createResponse[0];
           $wcap_user_id = '';
